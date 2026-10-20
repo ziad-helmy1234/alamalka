@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import '../models/order.dart';
+import '../services/stock_service.dart';
+import '../theme/app_theme.dart';
+
+class OrdersScreen extends StatelessWidget {
+  const OrdersScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final StockService stockService = StockService();
+    final orders = stockService.orders;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Row(
+          children: [
+            Icon(Icons.assignment_outlined, color: AppColors.accentBlue),
+            SizedBox(width: 8),
+            Text('سجل قائمة الأوامر (Orders)'),
+          ],
+        ),
+      ),
+      body: orders.isEmpty
+          ? const Center(
+              child: Text('لا توجد أوامر منفذة أو معلقة حالياً',
+                  style: TextStyle(color: AppColors.textSecondary)),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                final isBuy = order.side == OrderSide.buy;
+                final sideColor = isBuy
+                    ? AppColors.greenPositive
+                    : AppColors.redNegative;
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: sideColor.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      isBuy ? 'شراء' : 'بيع',
+                                      style: TextStyle(
+                                        color: sideColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      order.symbol,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildStatusBadge(order.status),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          order.stockName,
+                          style: const TextStyle(
+                              color: AppColors.textSecondary, fontSize: 13),
+                        ),
+                        const Divider(color: AppColors.borderDark, height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'الكمية: ${order.quantity} سهم',
+                              style: const TextStyle(
+                                  fontSize: 13, color: AppColors.textPrimary),
+                            ),
+                            Text(
+                              'السعر: ${order.targetPrice.toStringAsFixed(2)} ${order.currency}',
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'نوع السعر: ${order.type == OrderType.limit ? "سعر حد (Limit)" : "سعر السوق (Market)"}',
+                              style: const TextStyle(
+                                  fontSize: 12, color: AppColors.textSecondary),
+                            ),
+                            Text(
+                              'الصلاحية: ${order.validity == OrderValidity.gtc ? "حتى الإلغاء (GTC)" : "أمر يومي (Day)"}',
+                              style: const TextStyle(
+                                  fontSize: 12, color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildStatusBadge(OrderStatus status) {
+    Color bg = AppColors.borderDark;
+    String text = 'معلق';
+    Color textColor = AppColors.textPrimary;
+
+    switch (status) {
+      case OrderStatus.pending:
+        bg = Colors.amber.withOpacity(0.2);
+        text = 'قيد التنفيذ (معلق)';
+        textColor = Colors.amber;
+        break;
+      case OrderStatus.executed:
+        bg = AppColors.greenPositive.withOpacity(0.2);
+        text = 'تم التنفيذ';
+        textColor = AppColors.greenPositive;
+        break;
+      case OrderStatus.cancelled:
+        bg = AppColors.redNegative.withOpacity(0.2);
+        text = 'ملغى';
+        textColor = AppColors.redNegative;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+            color: textColor, fontWeight: FontWeight.bold, fontSize: 11),
+      ),
+    );
+  }
+}
