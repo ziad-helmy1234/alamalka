@@ -58,6 +58,12 @@ class AppTheme {
         surface: AppColors.cardDark,
         onSurface: AppColors.textPrimaryDark,
       ),
+      listTileTheme: ListTileThemeData(
+        tileColor: Colors.transparent,
+        selectedTileColor: AppColors.accentBlue.withOpacity(0.15),
+        iconColor: AppColors.accentBlue,
+        textColor: AppColors.textPrimaryDark,
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primaryDark,
         elevation: 0,
@@ -100,6 +106,12 @@ class AppTheme {
         primary: AppColors.accentBlue,
         surface: AppColors.cardLight,
         onSurface: AppColors.textPrimaryLight,
+      ),
+      listTileTheme: ListTileThemeData(
+        tileColor: Colors.transparent,
+        selectedTileColor: AppColors.accentBlue.withOpacity(0.15),
+        iconColor: AppColors.accentBlue,
+        textColor: AppColors.textPrimaryLight,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primaryLight,
