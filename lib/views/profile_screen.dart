@@ -432,10 +432,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(height: 8),
           Text(
             'مرخص ومُعتمد رسمياً من الهيئة العامة للرقابة المالية (FRA) برقم ترخيص #782 للوساطة في الأوراق المالية بالبورصة المصرية.',
-            style: TextStyle(color: AppColors.textSecondary, height: 1.4),
+            style: TextStyle(height: 1.4),
           ),
           SizedBox(height: 12),
-          Text('جميع حقوق الملكية والتشفير محفوظة © 2024', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+          Text('جميع حقوق الملكية والتشفير محفوظة © 2024', style: TextStyle(fontSize: 11)),
         ],
       ),
     );

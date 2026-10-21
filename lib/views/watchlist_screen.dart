@@ -34,27 +34,26 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
               snapshot.data?.where((s) => s.isWatchlisted).toList() ?? [];
 
           if (watchlistedStocks.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.bookmark_border,
-                      size: 64, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  const Text(
+                  Icon(Icons.bookmark_border, size: 64),
+                  SizedBox(height: 16),
+                  Text(
                     'قائمة المراقبة فارغة حالياً',
                     style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Text(
+                  SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    child: const Text(
                       'يمكنك إضافة أي سهم إلى قائمة المراقبة بالنقر على أيقونة الإشارة المرجعية في الشاشة الرئيسية أو شاشة البحث.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 13),
                     ),
                   ),
                 ],
@@ -65,7 +64,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
           return ListView.separated(
             itemCount: watchlistedStocks.length,
             separatorBuilder: (_, __) =>
-                const Divider(color: AppColors.borderDark, height: 1),
+                Divider(color: Theme.of(context).dividerColor, height: 1),
             itemBuilder: (context, index) {
               final stock = watchlistedStocks[index];
               final color = stock.isPositive
@@ -102,8 +101,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
                     Expanded(
                       child: Text(
                         stock.nameAr,
-                        style: const TextStyle(
-                            color: AppColors.textSecondary, fontSize: 12),
+                        style: const TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

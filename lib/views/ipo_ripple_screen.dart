@@ -33,7 +33,7 @@ class IPORippleScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     AppColors.accentBlue.withOpacity(0.3),
-                    AppColors.cardDark,
+                    Theme.of(context).cardColor,
                   ],
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
@@ -67,7 +67,6 @@ class IPORippleScreen extends StatelessWidget {
                   Text(
                     'تحليل تأثير الطروحات الأولية الجديدة (IPO Ripple Effect) على سيولة السوق وتعديل أسعار الأسهم والقطاعات المتأثرة في محفظتك.',
                     style: TextStyle(
-                        color: AppColors.textPrimary,
                         fontSize: 13,
                         height: 1.4),
                   ),
@@ -81,7 +80,6 @@ class IPORippleScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -94,7 +92,7 @@ class IPORippleScreen extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final ipo = ipoEffects[index];
-                return _buildIPORippleCard(ipo);
+                return _buildIPORippleCard(context, ipo);
               },
             ),
           ],
@@ -103,7 +101,7 @@ class IPORippleScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIPORippleCard(IPORippleEffect ipo) {
+  Widget _buildIPORippleCard(BuildContext context, IPORippleEffect ipo) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -143,7 +141,6 @@ class IPORippleScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
-                                color: AppColors.textPrimary,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -151,8 +148,7 @@ class IPORippleScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               ipo.sectorAr,
-                              style: const TextStyle(
-                                  color: AppColors.textSecondary, fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
                           ],
                         ),
@@ -186,7 +182,7 @@ class IPORippleScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider(color: AppColors.borderDark, height: 24),
+            Divider(color: Theme.of(context).dividerColor, height: 24),
 
             // Target Funding & Price Range
             Row(
@@ -209,8 +205,9 @@ class IPORippleScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryDark,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +233,6 @@ class IPORippleScreen extends StatelessWidget {
                   Text(
                     ipo.marketImpactSummaryAr,
                     style: const TextStyle(
-                        color: AppColors.textPrimary,
                         fontSize: 13,
                         height: 1.4),
                   ),
@@ -314,12 +310,10 @@ class IPORippleScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title,
-            style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+            style: const TextStyle(fontSize: 11)),
         const SizedBox(height: 2),
         Text(value,
             style: const TextStyle(
-                color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 13)),
       ],

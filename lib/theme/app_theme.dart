@@ -17,11 +17,10 @@ class AppColors {
   static const Color textSecondaryLight = Color(0xFF64748B);
   static const Color borderLight = Color(0xFFCBD5E1);
 
-  // Dynamic Theme Colors
-  static Color get textPrimary =>
-      AppTheme.isDarkMode ? textPrimaryDark : textPrimaryLight;
-  static Color get textSecondary =>
-      AppTheme.isDarkMode ? textSecondaryDark : textSecondaryLight;
+  // Const Fallbacks for compile-time constants
+  static const Color textPrimary = Color(0xFFF8FAFC);
+  static const Color textSecondary = Color(0xFF94A3B8);
+
   static Color get cardBg => AppTheme.isDarkMode ? cardDark : cardLight;
   static Color get primaryContainer =>
       AppTheme.isDarkMode ? primaryDark : const Color(0xFFE2E8F0);

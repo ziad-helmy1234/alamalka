@@ -477,7 +477,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
           ),
           overflow: TextOverflow.ellipsis,
@@ -487,7 +487,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
           fit: BoxFit.scaleDown,
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),

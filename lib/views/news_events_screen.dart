@@ -52,7 +52,6 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
           controller: _tabController,
           indicatorColor: AppColors.accentBlue,
           labelColor: AppColors.accentBlue,
-          unselectedLabelColor: AppColors.textSecondary,
           tabs: const [
             Tab(text: 'أخبار السوق اللحظية'),
             Tab(text: 'الأجندة الاقتصادية'),
@@ -104,7 +103,7 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
             },
           ),
         ),
-        const Divider(color: AppColors.borderDark, height: 1),
+        Divider(color: Theme.of(context).dividerColor, height: 1),
 
         // News List
         Expanded(
@@ -179,8 +178,7 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
                 ),
                 Text(
                   _formatTimeAgo(item.timestamp),
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 11),
+                  style: const TextStyle(fontSize: 11),
                 ),
               ],
             ),
@@ -190,7 +188,6 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
-                color: AppColors.textPrimary,
                 height: 1.3,
               ),
             ),
@@ -198,27 +195,25 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
             Text(
               item.summaryAr,
               style: const TextStyle(
-                color: AppColors.textSecondary,
                 fontSize: 13,
                 height: 1.4,
               ),
             ),
-            const Divider(color: AppColors.borderDark, height: 20),
+            Divider(color: Theme.of(context).dividerColor, height: 20),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'المصدر: ${item.source}',
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 11),
+                  style: TextStyle(fontSize: 11),
                 ),
                 if (stock != null)
                   ActionChip(
                     avatar: const Icon(Icons.show_chart,
                         size: 14, color: AppColors.accentBlue),
                     label: Text('\$${stock.symbol}'),
-                    backgroundColor: AppColors.primaryDark,
+                    backgroundColor: Theme.of(context).cardColor,
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -263,9 +258,9 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryDark,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.borderDark),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Column(
                     children: [
@@ -279,8 +274,7 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
                       ),
                       Text(
                         _getMonthName(evt.date.month),
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary),
+                        style: const TextStyle(fontSize: 11),
                       ),
                     ],
                   ),
@@ -338,14 +332,12 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         evt.detailsAr,
-                        style: const TextStyle(
-                            color: AppColors.textSecondary, fontSize: 12),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),

@@ -71,8 +71,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 ),
                 Text(
                   currentStock.nameAr,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12),
                 ),
               ],
             ),
@@ -84,7 +83,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       : Icons.bookmark_border,
                   color: currentStock.isWatchlisted
                       ? AppColors.goldSharia
-                      : AppColors.textSecondary,
+                      : AppColors.accentBlue,
                 ),
                 tooltip: currentStock.isWatchlisted
                     ? 'إزالة من قائمة المراقبة'
@@ -141,7 +140,6 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -175,13 +173,13 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.borderDark,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Text(
                 stock.sectorAr,
                 style: const TextStyle(
-                  color: AppColors.textSecondary,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
@@ -214,8 +212,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     Text(
                       'الرسم البياني التفاعلي',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary),
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -223,7 +220,6 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   _getTimeframeLabel(_selectedTimeframe),
                   style: const TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -266,7 +262,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       border: Border.all(
                         color: isSelected
                             ? AppColors.accentBlue
-                            : AppColors.borderDark,
+                            : Theme.of(context).dividerColor,
                         width: 0.8,
                       ),
                     ),
@@ -275,7 +271,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       style: TextStyle(
                         color: isSelected
                             ? Colors.white
-                            : AppColors.textSecondary,
+                            : AppColors.accentBlue,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
                         fontSize: 13,
@@ -376,10 +372,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               'بيانات السوق والسيولة',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppColors.textPrimary),
+                  fontSize: 16),
             ),
-            const Divider(color: AppColors.borderDark, height: 24),
+            Divider(color: Theme.of(context).dividerColor, height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -410,12 +405,10 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title,
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 12)),
+            style: const TextStyle(fontSize: 12)),
         const SizedBox(height: 4),
         Text(value,
             style: const TextStyle(
-                color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 14)),
       ],
@@ -425,7 +418,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
   Widget _buildActionBottomBar(BuildContext context, Stock stock) {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: AppColors.primaryDark,
+      color: Theme.of(context).cardColor,
       child: Row(
         children: [
           Expanded(
@@ -475,7 +468,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

@@ -71,11 +71,10 @@ class _OrderModalState extends State<OrderModal> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -93,8 +92,9 @@ class _OrderModalState extends State<OrderModal> {
                     decoration: BoxDecoration(
                       color: _side == OrderSide.buy
                           ? AppColors.greenPositive
-                          : AppColors.borderDark,
+                          : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: const Center(
                       child: Text('شراء',
@@ -114,8 +114,9 @@ class _OrderModalState extends State<OrderModal> {
                     decoration: BoxDecoration(
                       color: _side == OrderSide.sell
                           ? AppColors.redNegative
-                          : AppColors.borderDark,
+                          : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: const Center(
                       child: Text('بيع',
@@ -133,7 +134,6 @@ class _OrderModalState extends State<OrderModal> {
           // Order Type Selector (Market Price vs Limit Price)
           const Text('نوع السعر (Pricing Mode)',
               style: TextStyle(
-                  color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
@@ -198,7 +198,6 @@ class _OrderModalState extends State<OrderModal> {
           // Order Validity (Day vs GTC)
           const Text('صلاحية الأمر (Order Duration)',
               style: TextStyle(
-                  color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
@@ -227,20 +226,19 @@ class _OrderModalState extends State<OrderModal> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primaryDark,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('القوة الشرائية المتاحة:',
-                        style: TextStyle(color: AppColors.textSecondary)),
+                    Text('القوة الشرائية المتاحة:'),
                     Text(
                       '${buyingPower.toStringAsFixed(2)} ${widget.stock.currency}',
                       style: const TextStyle(
-                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -249,13 +247,12 @@ class _OrderModalState extends State<OrderModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('إجمالي قيمة الأمر:',
-                        style: TextStyle(color: AppColors.textSecondary)),
+                    const Text('إجمالي قيمة الأمر:'),
                     Text(
                       '${totalCost.toStringAsFixed(2)} ${widget.stock.currency}',
                       style: TextStyle(
                         color: hasEnoughPower
-                            ? AppColors.textPrimary
+                            ? AppColors.greenPositive
                             : AppColors.redNegative,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
