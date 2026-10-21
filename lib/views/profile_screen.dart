@@ -394,7 +394,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   AppTheme.toggleTheme();
                 },
               ),
-              const Divider(color: AppColors.borderDark),
+              Divider(color: isDark ? AppColors.borderDark : AppColors.borderLight),
               SwitchListTile(
                 title: const Text('التسجيل بالبصمة / Face ID'),
                 subtitle: const Text('تسجيل الدخول السريع والآمن للبيانات المالية'),
@@ -445,47 +445,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (bottomSheetContext) => ValueListenableBuilder<ThemeMode>(
+        valueListenable: AppTheme.themeNotifier,
+        builder: (context, mode, _) {
+          final isDark = mode == ThemeMode.dark;
+          final cardBg = isDark ? AppColors.cardDark : AppColors.cardLight;
+          final onSurface =
+              isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+          final borderClr =
+              isDark ? AppColors.borderDark : AppColors.borderLight;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Theme.of(context).colorScheme.onSurface,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: onSurface),
+                      onPressed: () => Navigator.pop(bottomSheetContext),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
+                Divider(color: borderClr),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: body,
+                  ),
                 ),
               ],
             ),
-            Divider(color: Theme.of(context).dividerColor),
-            Flexible(
-              child: SingleChildScrollView(
-                child: body,
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
