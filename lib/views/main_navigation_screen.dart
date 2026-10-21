@@ -41,9 +41,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.accentBlue,
-        unselectedItemColor: AppColors.textSecondary,
-        backgroundColor: AppColors.primaryDark,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
         unselectedLabelStyle: const TextStyle(fontSize: 9),
         items: const [
