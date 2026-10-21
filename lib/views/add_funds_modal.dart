@@ -181,40 +181,44 @@ class _AddFundsModalState extends State<AddFundsModal> {
                   ..._methods.map(
                     (m) => Container(
                       margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
+                      child: Material(
                         color: _selectedMethod == m['name']
                             ? AppColors.accentBlue.withOpacity(0.15)
                             : Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: _selectedMethod == m['name']
-                              ? AppColors.accentBlue
-                              : Theme.of(context).dividerColor,
-                        ),
-                      ),
-                      child: RadioListTile<String>(
-                        value: m['name']!,
-                        groupValue: _selectedMethod,
-                        dense: true,
-                        title: Text(
-                          m['name']!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                        clipBehavior: Clip.antiAlias,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: _selectedMethod == m['name']
+                                ? AppColors.accentBlue
+                                : Theme.of(context).dividerColor,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: Text(
-                          m['desc']!,
-                          style: const TextStyle(
-                            fontSize: 11,
+                        child: RadioListTile<String>(
+                          value: m['name']!,
+                          groupValue: _selectedMethod,
+                          dense: true,
+                          title: Text(
+                            m['name']!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          subtitle: Text(
+                            m['desc']!,
+                            style: const TextStyle(
+                              fontSize: 11,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          activeColor: AppColors.accentBlue,
+                          onChanged: (val) {
+                            if (val != null) setState(() => _selectedMethod = val);
+                          },
                         ),
-                        activeColor: AppColors.accentBlue,
-                        onChanged: (val) {
-                          if (val != null) setState(() => _selectedMethod = val);
-                        },
                       ),
                     ),
                   ),

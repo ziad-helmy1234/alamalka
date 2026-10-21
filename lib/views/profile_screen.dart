@@ -15,7 +15,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final portfolio = _stockService.getPortfolioSummary();
+    final egpBalance = _stockService.getPortfolioSummary().egpTotalValue;
 
     return Scaffold(
       appBar: AppBar(
@@ -32,11 +32,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Header Card
-            _buildUserHeaderCard(portfolio.egpTotalValue),
-            const SizedBox(height: 20),
+            // User Verified Account Header Card
+            _buildUserHeaderCard(egpBalance),
+            const SizedBox(height: 16),
 
-            // Quick Deposit Button Card
+            // Quick Deposit Banner
             _buildDepositBannerCard(context),
             const SizedBox(height: 20),
 
@@ -224,40 +224,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required Color iconColor,
     required String title,
     required String subtitle,
-    int badgeCount = 0,
     required VoidCallback onTap,
+    int badgeCount = 0,
   }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         onTap: onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: iconColor),
-        ),
-        title: Row(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                overflow: TextOverflow.ellipsis,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Icon(icon, color: iconColor, size: 22),
             ),
-            if (badgeCount > 0) ...[
-              const SizedBox(width: 6),
-              CircleAvatar(
-                radius: 9,
-                backgroundColor: AppColors.redNegative,
-                child: Text('$badgeCount',
-                    style: const TextStyle(fontSize: 10, color: Colors.white)),
+            if (badgeCount > 0)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppColors.redNegative,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '$badgeCount',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
-            ],
           ],
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
         subtitle: Text(subtitle,
             style: const TextStyle(fontSize: 11),
@@ -459,47 +471,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final borderClr =
               isDark ? AppColors.borderDark : AppColors.borderLight;
 
-          return Container(
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.8,
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: onSurface,
+          return Material(
+            color: cardBg,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(24)),
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.8,
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: onSurface),
-                      onPressed: () => Navigator.pop(bottomSheetContext),
-                    ),
-                  ],
-                ),
-                Divider(color: borderClr),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: body,
+                      IconButton(
+                        icon: Icon(Icons.close, color: onSurface),
+                        onPressed: () => Navigator.pop(bottomSheetContext),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  Divider(color: borderClr),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: body,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
