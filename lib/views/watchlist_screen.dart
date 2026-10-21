@@ -34,23 +34,23 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
               snapshot.data?.where((s) => s.isWatchlisted).toList() ?? [];
 
           if (watchlistedStocks.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.bookmark_border, size: 64),
-                  SizedBox(height: 16),
-                  Text(
+                  const Icon(Icons.bookmark_border, size: 64),
+                  const SizedBox(height: 16),
+                  const Text(
                     'قائمة المراقبة فارغة حالياً',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: const Text(
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.0),
+                    child: Text(
                       'يمكنك إضافة أي سهم إلى قائمة المراقبة بالنقر على أيقونة الإشارة المرجعية في الشاشة الرئيسية أو شاشة البحث.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 13),

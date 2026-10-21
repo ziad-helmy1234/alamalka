@@ -235,7 +235,7 @@ class _OrderModalState extends State<OrderModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('القوة الشرائية المتاحة:'),
+                    const Text('القوة الشرائية المتاحة:'),
                     Text(
                       '${buyingPower.toStringAsFixed(2)} ${widget.stock.currency}',
                       style: const TextStyle(
