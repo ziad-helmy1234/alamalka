@@ -11,14 +11,21 @@ class StockTradingApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'منصة التداول المتقدمة - Stock Trading App',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: const Directionality(
-        textDirection: TextDirection.rtl, // RTL layout for Arabic
-        child: MainNavigationScreen(),
-      ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, currentMode, _) {
+        return MaterialApp(
+          title: 'منصة التداول المتقدمة - Stock Trading App',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: currentMode,
+          home: const Directionality(
+            textDirection: TextDirection.rtl, // RTL layout for Arabic
+            child: MainNavigationScreen(),
+          ),
+        );
+      },
     );
   }
 }

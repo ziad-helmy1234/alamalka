@@ -29,7 +29,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: AppColors.textPrimary),
+            icon: const Icon(Icons.search, color: AppColors.accentBlue),
             tooltip: 'البحث والتصنيفات',
             onPressed: () {
               Navigator.push(
@@ -39,7 +39,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.newspaper, color: AppColors.textPrimary),
+            icon: const Icon(Icons.newspaper, color: AppColors.accentBlue),
             tooltip: 'الأخبار والأحداث',
             onPressed: () {
               Navigator.push(
@@ -60,7 +60,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               // 1. Index Banner (EGX 30 / EGX 70 / EGX 100 EWI / EGX 35-LV)
-              _buildMarketIndicesBanner(),
+              _buildMarketIndicesBanner(context),
 
               // 2. Biggest Winners Section
               _buildTopGainersRow(),
@@ -78,17 +78,16 @@ class _MarketsScreenState extends State<MarketsScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
-              const Divider(color: AppColors.borderDark, height: 1),
+              Divider(color: Theme.of(context).dividerColor, height: 1),
 
               // 5. Stock List Tiles
               ...allStocks.map((stock) => Column(
                     children: [
                       _buildStockTile(stock),
-                      const Divider(color: AppColors.borderDark, height: 1),
+                      Divider(color: Theme.of(context).dividerColor, height: 1),
                     ],
                   )),
             ],
@@ -98,7 +97,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
     );
   }
 
-  Widget _buildMarketIndicesBanner() {
+  Widget _buildMarketIndicesBanner(BuildContext context) {
     final indices = [
       {'name': 'EGX 30', 'value': '30,450.20', 'change': '+1.25%', 'isPositive': true},
       {'name': 'EGX 70 EWI', 'value': '7,210.80', 'change': '-0.40%', 'isPositive': false},
@@ -107,7 +106,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
     ];
 
     return Container(
-      color: AppColors.primaryDark,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -119,6 +118,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
             return Row(
               children: [
                 _buildIndexItem(
+                  context,
                   idx['name'] as String,
                   idx['value'] as String,
                   idx['change'] as String,
@@ -129,7 +129,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
                     width: 1,
                     height: 28,
                     margin: const EdgeInsets.symmetric(horizontal: 16),
-                    color: AppColors.borderDark,
+                    color: Theme.of(context).dividerColor,
                   ),
               ],
             );
@@ -139,11 +139,12 @@ class _MarketsScreenState extends State<MarketsScreen> {
     );
   }
 
-  Widget _buildIndexItem(String name, String value, String change, bool isPositive) {
+  Widget _buildIndexItem(BuildContext context, String name, String value, String change, bool isPositive) {
     final color = isPositive ? AppColors.greenPositive : AppColors.redNegative;
+
     return Column(
       children: [
-        Text(name, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+        Text(name, style: const TextStyle(fontSize: 11)),
         const SizedBox(height: 2),
         Row(
           children: [
@@ -297,7 +298,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
         margin: const EdgeInsets.only(left: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.cardDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: color.withOpacity(0.4),
@@ -316,7 +317,6 @@ class _MarketsScreenState extends State<MarketsScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: AppColors.textPrimary,
                   ),
                 ),
                 Container(
@@ -341,7 +341,6 @@ class _MarketsScreenState extends State<MarketsScreen> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: AppColors.textSecondary,
                 fontSize: 11,
               ),
             ),
@@ -350,7 +349,6 @@ class _MarketsScreenState extends State<MarketsScreen> {
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
-                color: AppColors.textPrimary,
               ),
             ),
           ],
@@ -391,7 +389,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
           Expanded(
             child: Text(
               stock.nameAr,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              style: const TextStyle(fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -404,7 +402,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
       trailing: IconButton(
         icon: Icon(
           stock.isWatchlisted ? Icons.bookmark : Icons.bookmark_border,
-          color: stock.isWatchlisted ? AppColors.goldSharia : AppColors.textSecondary,
+          color: stock.isWatchlisted ? AppColors.goldSharia : AppColors.accentBlue,
         ),
         onPressed: () {
           setState(() {

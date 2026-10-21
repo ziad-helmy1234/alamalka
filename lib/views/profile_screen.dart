@@ -46,7 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -83,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             _buildMenuItem(
               icon: Icons.settings,
-              iconColor: AppColors.textSecondary,
+              iconColor: AppColors.accentBlue,
               title: 'الإعدادات والأمان (Settings)',
               subtitle: 'تغيير رمز PIN، البصمة (Biometrics)، وتفضيلات التطبيق',
               onTap: () => _showSettingsSheet(context),
@@ -103,7 +102,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildUserHeaderCard(double egpBalance) {
     return Card(
-      color: AppColors.primaryDark,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -123,13 +121,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
                     'رقم الحساب الموحد (Unified ID): #EGX-892104',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 6),
                   Container(
@@ -162,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         gradient: LinearGradient(
           colors: [
             AppColors.greenPositive.withOpacity(0.25),
-            AppColors.cardDark,
+            Theme.of(context).cardColor,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
@@ -173,22 +170,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: const [
                 Text(
                   'إضافة أموال للمحفظة',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
                   ),
                 ),
                 SizedBox(height: 4),
                 Text(
                   'إيداع فوري عبر InstaPay والبطاقات المصرفية',
-                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 11),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -209,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
-                backgroundColor: AppColors.cardDark,
+                backgroundColor: Theme.of(context).cardColor,
                 shape: const RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.vertical(top: Radius.circular(24)),
@@ -264,9 +260,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         subtitle: Text(subtitle,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+            style: const TextStyle(fontSize: 11),
             overflow: TextOverflow.ellipsis),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textSecondary),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 14),
       ),
     );
   }
@@ -286,7 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return ListTile(
             leading: const Icon(Icons.mark_email_unread, color: AppColors.accentBlue),
             title: Text(msg.titleAr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            subtitle: Text(msg.bodyAr, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            subtitle: Text(msg.bodyAr, style: const TextStyle(fontSize: 12)),
           );
         },
       ),
@@ -309,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: Text('${trf.typeAr} - ${trf.amount.toStringAsFixed(2)} ${trf.currency}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             subtitle: Text('طريقة الإيداع: ${trf.methodAr} • الحالة: ${trf.statusAr}',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                style: const TextStyle(fontSize: 12)),
           );
         },
       ),
@@ -331,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: const Icon(Icons.picture_as_pdf, color: AppColors.redNegative),
             title: Text(st.titleAr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             subtitle: Text('${st.periodAr} • ${st.fileSize}',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                style: const TextStyle(fontSize: 12)),
             trailing: IconButton(
               icon: const Icon(Icons.download, color: AppColors.accentBlue),
               onPressed: () {
@@ -360,7 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return ListTile(
             leading: const Icon(Icons.assignment_turned_in, color: Colors.amber),
             title: Text(f.titleAr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            subtitle: Text(f.descriptionAr, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            subtitle: Text(f.descriptionAr, style: const TextStyle(fontSize: 12)),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -379,28 +375,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _showCustomBottomSheet(
       context,
       'الإعدادات والأمان (Settings)',
-      Column(
-        children: [
-          SwitchListTile(
-            title: const Text('التسجيل بالبصمة / Face ID'),
-            subtitle: const Text('تسجيل الدخول السريع والآمن للبيانات المالية'),
-            value: true,
-            activeColor: AppColors.accentBlue,
-            onChanged: (val) {},
-          ),
-          SwitchListTile(
-            title: const Text('إشعارات تنفيذ الأوامر اللحظية'),
-            subtitle: const Text('تنبيهات أسعار وتأكيد تنفيذ أوامر البيع والشراء'),
-            value: true,
-            activeColor: AppColors.accentBlue,
-            onChanged: (val) {},
-          ),
-          ListTile(
-            title: const Text('تغيير رمز PIN للتداول'),
-            trailing: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
-            onTap: () {},
-          ),
-        ],
+      ValueListenableBuilder<ThemeMode>(
+        valueListenable: AppTheme.themeNotifier,
+        builder: (context, mode, _) {
+          final isDark = mode == ThemeMode.dark;
+          return Column(
+            children: [
+              SwitchListTile(
+                title: const Text('الوضع الفاتح (Light Mode)'),
+                subtitle: const Text('التبديل بين الثيم الداكن والفاتح للتطبيق'),
+                secondary: Icon(
+                  isDark ? Icons.dark_mode : Icons.light_mode,
+                  color: isDark ? Colors.amber : AppColors.accentBlue,
+                ),
+                value: !isDark,
+                activeColor: AppColors.accentBlue,
+                onChanged: (val) {
+                  AppTheme.toggleTheme();
+                },
+              ),
+              const Divider(color: AppColors.borderDark),
+              SwitchListTile(
+                title: const Text('التسجيل بالبصمة / Face ID'),
+                subtitle: const Text('تسجيل الدخول السريع والآمن للبيانات المالية'),
+                value: true,
+                activeColor: AppColors.accentBlue,
+                onChanged: (val) {},
+              ),
+              SwitchListTile(
+                title: const Text('إشعارات تنفيذ الأوامر اللحظية'),
+                subtitle: const Text('تنبيهات أسعار وتأكيد تنفيذ أوامر البيع والشراء'),
+                value: true,
+                activeColor: AppColors.accentBlue,
+                onChanged: (val) {},
+              ),
+              ListTile(
+                title: const Text('تغيير رمز PIN للتداول'),
+                trailing: const Icon(Icons.lock_outline),
+                onTap: () {},
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -429,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -448,10 +464,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -462,7 +478,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            const Divider(color: AppColors.borderDark),
+            Divider(color: Theme.of(context).dividerColor),
             Flexible(
               child: SingleChildScrollView(
                 child: body,

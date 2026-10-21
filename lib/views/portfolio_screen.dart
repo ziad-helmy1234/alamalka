@@ -101,7 +101,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
         children: [
           // Total Valuation Card
           Card(
-            color: AppColors.primaryDark,
+            color: Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(

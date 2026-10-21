@@ -31,6 +31,19 @@ class _SearchScreenState extends State<SearchScreen> {
     'كيماويات وأسمدة',
   ];
 
+  Widget? _buildClearButton() {
+    if (_searchQuery.isEmpty) return null;
+    return IconButton(
+      icon: const Icon(Icons.clear, size: 18),
+      onPressed: () {
+        _searchController.clear();
+        setState(() {
+          _searchQuery = '';
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,20 +62,10 @@ class _SearchScreenState extends State<SearchScreen> {
             decoration: InputDecoration(
               hintText: 'ابحث بالاسم أو الرمز (مثال: COMI, TMGH)...',
               border: InputBorder.none,
-              hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, color: AppColors.textSecondary, size: 18),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                    )
-                  : null,
+              hintStyle: const TextStyle(fontSize: 14),
+              suffixIcon: _buildClearButton(),
             ),
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+            style: const TextStyle(fontSize: 15),
           ),
         ),
       ),
@@ -70,7 +73,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           // Filter Chips Container
           Container(
-            color: AppColors.primaryDark,
+            color: Theme.of(context).cardColor,
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               children: [
@@ -127,7 +130,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
           ),
-          const Divider(color: AppColors.borderDark, height: 1),
+          Divider(color: Theme.of(context).dividerColor, height: 1),
 
           // Live Filtered Search Results
           Expanded(
@@ -155,7 +158,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Center(
                       child: Text(
                         'لا توجد أسهم تطابق نتائج البحث والتصنيف',
-                        style: TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(fontSize: 14),
                       ),
                     ),
                   );
@@ -165,7 +168,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: filteredStocks.length,
                   separatorBuilder: (_, __) =>
-                      const Divider(color: AppColors.borderDark, height: 1),
+                      Divider(color: Theme.of(context).dividerColor, height: 1),
                   itemBuilder: (context, index) {
                     final stock = filteredStocks[index];
                     return _buildSearchResultTile(stock);
@@ -195,7 +198,13 @@ class _SearchScreenState extends State<SearchScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       title: Row(
         children: [
-          Text(stock.symbol, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          Text(
+            stock.symbol,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
           if (stock.isShariaCompliant) ...[
             const SizedBox(width: 6),
             const Icon(Icons.star, size: 14, color: AppColors.goldSharia),
@@ -203,7 +212,10 @@ class _SearchScreenState extends State<SearchScreen> {
           const Spacer(),
           Text(
             '${stock.currentPrice.toStringAsFixed(2)} ${stock.currency}',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
         ],
       ),
@@ -212,7 +224,9 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: Text(
               stock.nameAr,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              style: const TextStyle(
+                fontSize: 12,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -232,7 +246,7 @@ class _SearchScreenState extends State<SearchScreen> {
       trailing: IconButton(
         icon: Icon(
           stock.isWatchlisted ? Icons.bookmark : Icons.bookmark_border,
-          color: stock.isWatchlisted ? AppColors.goldSharia : AppColors.textSecondary,
+          color: stock.isWatchlisted ? AppColors.goldSharia : AppColors.accentBlue,
           size: 20,
         ),
         onPressed: () {
