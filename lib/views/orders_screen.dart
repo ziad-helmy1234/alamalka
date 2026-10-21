@@ -23,8 +23,7 @@ class OrdersScreen extends StatelessWidget {
       ),
       body: orders.isEmpty
           ? const Center(
-              child: Text('لا توجد أوامر منفذة أو معلقة حالياً',
-                  style: TextStyle(color: AppColors.textSecondary)),
+              child: Text('لا توجد أوامر منفذة أو معلقة حالياً'),
             )
           : ListView.separated(
               padding: const EdgeInsets.all(16),
@@ -86,24 +85,21 @@ class OrdersScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           order.stockName,
-                          style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 13),
+                          style: const TextStyle(fontSize: 13),
                         ),
-                        const Divider(color: AppColors.borderDark, height: 20),
+                        Divider(color: Theme.of(context).dividerColor, height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'الكمية: ${order.quantity} سهم',
-                              style: const TextStyle(
-                                  fontSize: 13, color: AppColors.textPrimary),
+                              style: const TextStyle(fontSize: 13),
                             ),
                             Text(
                               'السعر: ${order.targetPrice.toStringAsFixed(2)} ${order.currency}',
                               style: const TextStyle(
                                   fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary),
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -113,13 +109,11 @@ class OrdersScreen extends StatelessWidget {
                           children: [
                             Text(
                               'نوع السعر: ${order.type == OrderType.limit ? "سعر حد (Limit)" : "سعر السوق (Market)"}',
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.textSecondary),
+                              style: const TextStyle(fontSize: 12),
                             ),
                             Text(
                               'الصلاحية: ${order.validity == OrderValidity.gtc ? "حتى الإلغاء (GTC)" : "أمر يومي (Day)"}',
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.textSecondary),
+                              style: const TextStyle(fontSize: 12),
                             ),
                           ],
                         ),
@@ -135,7 +129,7 @@ class OrdersScreen extends StatelessWidget {
   Widget _buildStatusBadge(OrderStatus status) {
     Color bg = AppColors.borderDark;
     String text = 'معلق';
-    Color textColor = AppColors.textPrimary;
+    Color textColor = AppColors.textPrimaryDark;
 
     switch (status) {
       case OrderStatus.pending:

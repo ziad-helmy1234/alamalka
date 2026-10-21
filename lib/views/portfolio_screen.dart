@@ -47,7 +47,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
           controller: _tabController,
           indicatorColor: AppColors.accentBlue,
           labelColor: AppColors.accentBlue,
-          unselectedLabelColor: AppColors.textSecondary,
           tabs: const [
             Tab(text: 'محفظة الجنيه المصري (EGP)'),
             Tab(text: 'محفظة الدولار (USD)'),
@@ -101,7 +100,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
         children: [
           // Total Valuation Card
           Card(
-            color: Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -113,7 +111,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                       const Text(
                         'إجمالي قيمة المحفظة',
                         style: TextStyle(
-                          color: AppColors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -144,11 +141,10 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
-                  const Divider(color: AppColors.borderDark, height: 24),
+                  Divider(color: Theme.of(context).dividerColor, height: 24),
 
                   // Buying Power & Cash Balance
                   Row(
@@ -186,7 +182,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: AppColors.cardDark,
+                          backgroundColor: Theme.of(context).cardColor,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(24)),
@@ -224,7 +220,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -232,8 +227,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
               const SizedBox(width: 8),
               Text(
                 'الإجمالي: ${holdingsValue.toStringAsFixed(2)} $currency',
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12),
+                style: TextStyle(fontSize: 12),
               ),
             ],
           ),
@@ -241,13 +235,12 @@ class _PortfolioScreenState extends State<PortfolioScreen>
 
           // Holdings List
           if (holdings.isEmpty)
-            Card(
+            const Card(
               child: Padding(
-                padding: const EdgeInsets.all(32.0),
+                padding: EdgeInsets.all(32.0),
                 child: Center(
                   child: Text(
-                    'لا توجد أسهم مملوكة حالياً بهذه العملة ($currency)',
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    'لا توجد أسهم مملوكة حالياً بهذه العملة',
                   ),
                 ),
               ),
@@ -281,7 +274,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -292,7 +284,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
                               ),
                             ),
                           ],
@@ -304,8 +295,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                             Expanded(
                               child: Text(
                                 holding.stockNameAr,
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary, fontSize: 12),
+                                style: TextStyle(fontSize: 12),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -320,19 +310,15 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                             ),
                           ],
                         ),
-                        const Divider(color: AppColors.borderDark, height: 20),
+                        Divider(color: Theme.of(context).dividerColor, height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('الكمية: ${holding.quantity} سهم',
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12)),
+                                style: TextStyle(fontSize: 12)),
                             Text(
                                 'متوسط الشراء: ${holding.averageBuyPrice.toStringAsFixed(2)} $currency',
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12)),
+                                style: TextStyle(fontSize: 12)),
                           ],
                         ),
                       ],
@@ -383,7 +369,6 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -450,7 +435,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                       style: TextStyle(
                         color: isSelected
                             ? Colors.white
-                            : AppColors.textSecondary,
+                            : AppColors.accentBlue,
                         fontSize: 12,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
@@ -490,18 +475,23 @@ class _PortfolioScreenState extends State<PortfolioScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-            overflow: TextOverflow.ellipsis),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 11,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
         const SizedBox(height: 4),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(value,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13)),
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
         ),
       ],
     );

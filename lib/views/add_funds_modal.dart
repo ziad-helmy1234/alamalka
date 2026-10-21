@@ -64,7 +64,6 @@ class _AddFundsModalState extends State<AddFundsModal> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -73,12 +72,12 @@ class _AddFundsModalState extends State<AddFundsModal> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
           ),
-          const Divider(color: AppColors.borderDark, height: 16),
+          Divider(color: Theme.of(context).dividerColor, height: 16),
 
           // Scrollable Body for Vertical Safety
           Flexible(
@@ -123,7 +122,6 @@ class _AddFundsModalState extends State<AddFundsModal> {
                   // Quick Amount Chips
                   const Text('اختر المبلغ أو أدخل القيمة:',
                       style: TextStyle(
-                          color: AppColors.textSecondary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
@@ -137,8 +135,12 @@ class _AddFundsModalState extends State<AddFundsModal> {
                                 padding: const EdgeInsets.only(left: 8.0),
                                 child: ActionChip(
                                   label: Text(
-                                      '+${double.parse(val).toStringAsFixed(0)} $_currency'),
-                                  backgroundColor: AppColors.primaryDark,
+                                    '+${double.parse(val).toStringAsFixed(0)} $_currency',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  backgroundColor: AppColors.accentBlue.withOpacity(0.15),
                                   onPressed: () {
                                     setState(() {
                                       _amountController.text = val;
@@ -157,6 +159,10 @@ class _AddFundsModalState extends State<AddFundsModal> {
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (_) => setState(() {}),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'قيمة الإيداع ($_currency)',
                       border: const OutlineInputBorder(),
@@ -169,7 +175,6 @@ class _AddFundsModalState extends State<AddFundsModal> {
                   // Payment Method Selector
                   const Text('طريقة الإيداع المفضلة:',
                       style: TextStyle(
-                          color: AppColors.textSecondary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
@@ -179,12 +184,12 @@ class _AddFundsModalState extends State<AddFundsModal> {
                       decoration: BoxDecoration(
                         color: _selectedMethod == m['name']
                             ? AppColors.accentBlue.withOpacity(0.15)
-                            : AppColors.primaryDark,
+                            : Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: _selectedMethod == m['name']
                               ? AppColors.accentBlue
-                              : AppColors.borderDark,
+                              : Theme.of(context).dividerColor,
                         ),
                       ),
                       child: RadioListTile<String>(
@@ -196,7 +201,6 @@ class _AddFundsModalState extends State<AddFundsModal> {
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
-                            color: AppColors.textPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -204,7 +208,6 @@ class _AddFundsModalState extends State<AddFundsModal> {
                           m['desc']!,
                           style: const TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
