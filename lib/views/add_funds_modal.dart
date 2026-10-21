@@ -185,7 +185,6 @@ class _AddFundsModalState extends State<AddFundsModal> {
                         color: _selectedMethod == m['name']
                             ? AppColors.accentBlue.withOpacity(0.15)
                             : Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(10),
                         clipBehavior: Clip.antiAlias,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
