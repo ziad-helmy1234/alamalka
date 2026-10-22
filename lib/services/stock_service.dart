@@ -587,6 +587,75 @@ class StockService {
     return true;
   }
 
+  // Cancel Pending Order
+  bool cancelOrder(String orderId) {
+    final idx = _orders.indexWhere((o) => o.id == orderId);
+    if (idx == -1) return false;
+
+    final order = _orders[idx];
+    if (order.status != OrderStatus.pending) return false;
+
+    // Refund buying power if it was a pending buy order
+    if (order.side == OrderSide.buy) {
+      if (order.currency == 'EGP') {
+        _egpBuyingPower += order.totalValue;
+      } else {
+        _usdBuyingPower += order.totalValue;
+      }
+    }
+
+    order.status = OrderStatus.cancelled;
+
+    _inboxMessages.insert(
+      0,
+      InboxMessage(
+        id: 'MSG-${DateTime.now().millisecondsSinceEpoch}',
+        titleAr: 'إلغاء أمر ${order.symbol}',
+        bodyAr: 'تم إلغاء الأمر ${order.id} بنجاح وإعادة القوة الشرائية المتبقية إلى محفظتك.',
+        timestamp: DateTime.now(),
+        isRead: false,
+      ),
+    );
+
+    return true;
+  }
+
+  // Edit Pending Order
+  bool editOrder(Order editedOrder) {
+    final idx = _orders.indexWhere((o) => o.id == editedOrder.id);
+    if (idx == -1) return false;
+
+    final oldOrder = _orders[idx];
+    if (oldOrder.status != OrderStatus.pending) return false;
+
+    // Calculate difference in buying power if buy order
+    if (editedOrder.side == OrderSide.buy) {
+      final diff = editedOrder.totalValue - oldOrder.totalValue;
+      if (editedOrder.currency == 'EGP') {
+        if (_egpBuyingPower < diff) return false; // Not enough power for increase
+        _egpBuyingPower -= diff;
+      } else {
+        if (_usdBuyingPower < diff) return false;
+        _usdBuyingPower -= diff;
+      }
+    }
+
+    _orders[idx] = editedOrder;
+
+    _inboxMessages.insert(
+      0,
+      InboxMessage(
+        id: 'MSG-${DateTime.now().millisecondsSinceEpoch}',
+        titleAr: 'تعديل أمر ${editedOrder.symbol}',
+        bodyAr: 'تم تعديل بيانات الأمر ${editedOrder.id} بنجاح بنظام البورصة المصرية.',
+        timestamp: DateTime.now(),
+        isRead: false,
+      ),
+    );
+
+    return true;
+  }
+
   // IPO Ripple Effect analysis
   List<IPORippleEffect> getUpcomingIPORippleEffects() {
     return [

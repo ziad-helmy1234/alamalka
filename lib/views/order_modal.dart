@@ -7,11 +7,13 @@ import '../theme/app_theme.dart';
 class OrderModal extends StatefulWidget {
   final Stock stock;
   final OrderSide initialSide;
+  final Order? existingOrder;
 
   const OrderModal({
     super.key,
     required this.stock,
     required this.initialSide,
+    this.existingOrder,
   });
 
   @override
@@ -35,20 +37,32 @@ class _OrderModalState extends State<OrderModal> {
   ];
 
   late String _selectedCustodianBank;
-
-  final TextEditingController _quantityController =
-      TextEditingController(text: '100');
+  late TextEditingController _quantityController;
   late TextEditingController _priceController;
 
   @override
   void initState() {
     super.initState();
-    _side = widget.initialSide;
-    _selectedCustodianBank = _custodianBanks.first;
-    _priceController = TextEditingController(
-      text: widget.stock.currentPrice.toStringAsFixed(2),
-    );
-    _selectedGtdDate = DateTime.now().add(const Duration(days: 14));
+    if (widget.existingOrder != null) {
+      final o = widget.existingOrder!;
+      _side = o.side;
+      _orderType = o.type;
+      _validity = o.validity;
+      _selectedGtdDate = o.validUntilDate ?? DateTime.now().add(const Duration(days: 14));
+      _selectedCustodianBank = _custodianBanks.contains(o.custodianBank)
+          ? o.custodianBank
+          : _custodianBanks.first;
+      _quantityController = TextEditingController(text: o.quantity.toString());
+      _priceController = TextEditingController(text: o.targetPrice.toStringAsFixed(2));
+    } else {
+      _side = widget.initialSide;
+      _selectedCustodianBank = _custodianBanks.first;
+      _quantityController = TextEditingController(text: '100');
+      _priceController = TextEditingController(
+        text: widget.stock.currentPrice.toStringAsFixed(2),
+      );
+      _selectedGtdDate = DateTime.now().add(const Duration(days: 14));
+    }
   }
 
   Future<void> _pickGtdDate(BuildContext context) async {
@@ -73,6 +87,7 @@ class _OrderModalState extends State<OrderModal> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.existingOrder != null;
     final portfolio = _stockService.getPortfolioSummary();
     final buyingPower = widget.stock.currency == 'EGP'
         ? portfolio.egpBuyingPower
@@ -83,8 +98,13 @@ class _OrderModalState extends State<OrderModal> {
         ? widget.stock.currentPrice
         : (double.tryParse(_priceController.text) ?? 0.0);
     final totalCost = quantity * price;
+
+    final double effectiveRequiredPower = isEditing
+        ? totalCost - widget.existingOrder!.totalValue
+        : totalCost;
+
     final hasEnoughPower =
-        _side == OrderSide.sell || totalCost <= buyingPower;
+        _side == OrderSide.sell || effectiveRequiredPower <= buyingPower;
 
     return Container(
       constraints: BoxConstraints(
@@ -105,7 +125,9 @@ class _OrderModalState extends State<OrderModal> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'تنفيذ أمر ${_side == OrderSide.buy ? "شراء" : "بيع"} (${widget.stock.symbol})',
+                isEditing
+                    ? 'تعديل أمر ${_side == OrderSide.buy ? "شراء" : "بيع"} (${widget.stock.symbol})'
+                    : 'تنفيذ أمر ${_side == OrderSide.buy ? "شراء" : "بيع"} (${widget.stock.symbol})',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -422,41 +444,79 @@ class _OrderModalState extends State<OrderModal> {
                       onPressed: !hasEnoughPower && _side == OrderSide.buy
                           ? null
                           : () {
-                              final order = Order(
-                                id: 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-                                symbol: widget.stock.symbol,
-                                stockName: widget.stock.nameAr,
-                                type: _orderType,
-                                side: _side,
-                                targetPrice: price,
-                                quantity: quantity,
-                                validity: _validity,
-                                validUntilDate: _validity == OrderValidity.gtd
-                                    ? _selectedGtdDate
-                                    : null,
-                                custodianBank: _selectedCustodianBank,
-                                currency: widget.stock.currency,
-                                timestamp: DateTime.now(),
-                              );
+                              if (isEditing) {
+                                final updatedOrder = Order(
+                                  id: widget.existingOrder!.id,
+                                  symbol: widget.stock.symbol,
+                                  stockName: widget.stock.nameAr,
+                                  type: _orderType,
+                                  side: _side,
+                                  targetPrice: price,
+                                  quantity: quantity,
+                                  validity: _validity,
+                                  validUntilDate: _validity == OrderValidity.gtd
+                                      ? _selectedGtdDate
+                                      : null,
+                                  custodianBank: _selectedCustodianBank,
+                                  currency: widget.stock.currency,
+                                  timestamp: widget.existingOrder!.timestamp,
+                                  status: OrderStatus.pending,
+                                );
 
-                              final success = _stockService.placeOrder(order);
-                              Navigator.pop(context);
+                                final success = _stockService.editOrder(updatedOrder);
+                                Navigator.pop(context);
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    success
-                                        ? 'تم إرسال الأمر بنجاح بنك الحفظ: $_selectedCustodianBank!'
-                                        : 'عذراً، القوة الشرائية غير كافية لتنفيذ الأمر.',
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? 'تم حفظ تعديلات الأمر بنجاح!'
+                                          : 'عذراً، القوة الشرائية غير كافية لزيادة قيمة الأمر.',
+                                    ),
+                                    backgroundColor: success
+                                        ? AppColors.greenPositive
+                                        : AppColors.redNegative,
                                   ),
-                                  backgroundColor: success
-                                      ? AppColors.greenPositive
-                                      : AppColors.redNegative,
-                                ),
-                              );
+                                );
+                              } else {
+                                final order = Order(
+                                  id: 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+                                  symbol: widget.stock.symbol,
+                                  stockName: widget.stock.nameAr,
+                                  type: _orderType,
+                                  side: _side,
+                                  targetPrice: price,
+                                  quantity: quantity,
+                                  validity: _validity,
+                                  validUntilDate: _validity == OrderValidity.gtd
+                                      ? _selectedGtdDate
+                                      : null,
+                                  custodianBank: _selectedCustodianBank,
+                                  currency: widget.stock.currency,
+                                  timestamp: DateTime.now(),
+                                );
+
+                                final success = _stockService.placeOrder(order);
+                                Navigator.pop(context);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? 'تم إرسال الأمر بنجاح بنك الحفظ: $_selectedCustodianBank!'
+                                          : 'عذراً، القوة الشرائية غير كافية لتنفيذ الأمر.',
+                                    ),
+                                    backgroundColor: success
+                                        ? AppColors.greenPositive
+                                        : AppColors.redNegative,
+                                  ),
+                                );
+                              }
                             },
                       child: Text(
-                        'تأكيد أمر ${_side == OrderSide.buy ? "الشراء" : "البيع"}',
+                        isEditing
+                            ? 'حفظ تعديلات الأمر'
+                            : 'تأكيد أمر ${_side == OrderSide.buy ? "الشراء" : "البيع"}',
                         style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
