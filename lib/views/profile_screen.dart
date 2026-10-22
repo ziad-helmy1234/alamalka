@@ -459,21 +459,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _showChangePasswordModal(context);
                     },
                   ),
+                  ListTile(
+                    title: const Text('تغيير رمز PIN للتداول'),
+                    leading: const Icon(Icons.lock_outline,
+                        color: AppColors.accentBlue),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                    onTap: () {},
+                  ),
                 ],
               );
             },
-          );
-        },
-      ),
-    );
-  }
-              ListTile(
-                title: const Text('تغيير رمز PIN للتداول'),
-                leading: const Icon(Icons.lock_outline, color: AppColors.accentBlue),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                onTap: () {},
-              ),
-            ],
           );
         },
       ),
