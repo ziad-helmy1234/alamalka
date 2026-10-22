@@ -91,6 +91,7 @@ class AppStrings {
   static String get targetPriceLabel => AppLanguage.isArabic ? 'السعر المستهدف' : 'Target Price';
   static String get executionRule => AppLanguage.isArabic ? 'قاعدة التنفيذ' : 'Execution Rule';
   static String get fillBlockCondition => AppLanguage.isArabic ? 'أمر شرطي (تنفيذ بالدفعات)' : 'Fill Block Condition';
+  static String get fillBlockSize => AppLanguage.isArabic ? 'أمر شرطي (تنفيذ بالدفعات)' : 'Conditional Fill Block Size';
   static String get minBlockQuantity => AppLanguage.isArabic ? 'الحد الأدنى لكمية الدفعة' : 'Minimum Fill Block Quantity';
   static String get orderDuration => AppLanguage.isArabic ? 'صلاحية الأمر' : 'Order Duration';
   static String get dayOrder => AppLanguage.isArabic ? 'أمر يومي' : 'Day Order';
