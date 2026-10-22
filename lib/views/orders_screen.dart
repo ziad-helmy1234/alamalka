@@ -144,6 +144,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             // Parameters Grid
             _buildDetailRow('اسم السهم والرمز', '${order.stockName} (${order.symbol})'),
             _buildDetailRow('نوع السعر', order.type == OrderType.limit ? 'سعر حد (Limit)' : 'سعر السوق (Market)'),
+            _buildDetailRow('قاعدة التنفيذ', order.executionRuleAr),
             _buildDetailRow('السعر المستهدف', '${order.targetPrice.toStringAsFixed(2)} ${order.currency}'),
             _buildDetailRow('الكمية الإجمالية', '${order.quantity} سهم'),
             if (order.isConditional)
@@ -324,22 +325,43 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 order.stockName,
                                 style: const TextStyle(fontSize: 13),
                               ),
-                              if (order.isConditional)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.accentBlue.withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(4),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.accentBlue.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'قاعدة: ${order.executionRuleShort}',
+                                      style: const TextStyle(
+                                          color: AppColors.accentBlue,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                  child: Text(
-                                    'شرطي: دفعة ${order.minimumBlockQuantity} سهم',
-                                    style: const TextStyle(
-                                        color: AppColors.accentBlue,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
+                                  if (order.isConditional) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.goldSharia.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        'دفعة ${order.minimumBlockQuantity} سهم',
+                                        style: const TextStyle(
+                                            color: AppColors.goldSharia,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),

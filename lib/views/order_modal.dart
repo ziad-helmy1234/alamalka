@@ -25,6 +25,7 @@ class _OrderModalState extends State<OrderModal> {
   late OrderSide _side;
   OrderType _orderType = OrderType.limit;
   OrderValidity _validity = OrderValidity.gtc;
+  ExecutionRule _executionRule = ExecutionRule.regular;
   DateTime? _selectedGtdDate;
   bool _isConditional = false;
 
@@ -50,6 +51,7 @@ class _OrderModalState extends State<OrderModal> {
       _side = o.side;
       _orderType = o.type;
       _validity = o.validity;
+      _executionRule = o.executionRule;
       _selectedGtdDate = o.validUntilDate ?? DateTime.now().add(const Duration(days: 14));
       _selectedCustodianBank = _custodianBanks.contains(o.custodianBank)
           ? o.custodianBank
@@ -69,6 +71,7 @@ class _OrderModalState extends State<OrderModal> {
       );
       _selectedGtdDate = DateTime.now().add(const Duration(days: 14));
       _isConditional = false;
+      _executionRule = ExecutionRule.regular;
       _minBlockController = TextEditingController(text: '1000');
     }
   }
@@ -91,6 +94,47 @@ class _OrderModalState extends State<OrderModal> {
         _selectedGtdDate = picked;
       });
     }
+  }
+
+  Widget _buildExecutionRuleExplanationBanner(ExecutionRule rule) {
+    String text = '';
+    switch (rule) {
+      case ExecutionRule.regular:
+        text = 'تنفيذ عادي: ينفذ النظام الصفقات المتاحة فوراً ويقبل الصفقات الجزئية بأي كمية.';
+        break;
+      case ExecutionRule.mf:
+        text = 'الحد الأدنى للتنفيذ (MF): يشترط تنفيذ حد أدنى من الكمية فور دخول الأمر أو يلغى الأمر فوراً.';
+        break;
+      case ExecutionRule.fok:
+        text = 'تنفيذ بالكامل فوراً أو إلغاء (FOK): ينفذ كامل كمية الأمر فوراً بالكامل، أو يلغى الأمر بالكامل فوراً بدون أي تنفيذ جزئي.';
+        break;
+      case ExecutionRule.fak:
+        text = 'تنفيذ المتاح وإلغاء الباقي (FAK): ينفذ أقصى كمية متاحة بالسعر المستهدف فوراً ويلغي أي كمية متبقية فوراً.';
+        break;
+      case ExecutionRule.aon:
+        text = 'الكل أو لا شيء (AON): ينفذ كامل كمية الأمر فقط بدون تنفيذ جزئي، ويسمح بالانتظار في دفتر الأوامر حتى توفر كمية مقابلة كاملة.';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.accentBlue.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.tune_outlined, color: AppColors.accentBlue, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'قاعدة البورصة: $text',
+              style: const TextStyle(fontSize: 11, color: AppColors.accentBlue, height: 1.3),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -311,7 +355,63 @@ class _OrderModalState extends State<OrderModal> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 3. Conditional Order - Minimum Fill Quantity / Block Size (أمر شرطي)
+                  // 3. Execution Rule Selector (قاعدة التنفيذ: Regular, MF, FOK, FAK, AON)
+                  const Text('قاعدة التنفيذ (Execution Rule)',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ChoiceChip(
+                          label: const Text('عادي (Regular)'),
+                          selected: _executionRule == ExecutionRule.regular,
+                          onSelected: (val) {
+                            if (val) setState(() => _executionRule = ExecutionRule.regular);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('MF (Minimum Fill)'),
+                          selected: _executionRule == ExecutionRule.mf,
+                          onSelected: (val) {
+                            if (val) setState(() => _executionRule = ExecutionRule.mf);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('FOK (Fill or Kill)'),
+                          selected: _executionRule == ExecutionRule.fok,
+                          onSelected: (val) {
+                            if (val) setState(() => _executionRule = ExecutionRule.fok);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('FAK (Fill and Kill)'),
+                          selected: _executionRule == ExecutionRule.fak,
+                          onSelected: (val) {
+                            if (val) setState(() => _executionRule = ExecutionRule.fak);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('AON (All or None)'),
+                          selected: _executionRule == ExecutionRule.aon,
+                          onSelected: (val) {
+                            if (val) setState(() => _executionRule = ExecutionRule.aon);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _buildExecutionRuleExplanationBanner(_executionRule),
+                  const SizedBox(height: 16),
+
+                  // 4. Conditional Order - Minimum Fill Quantity / Block Size (أمر شرطي)
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text(
@@ -371,7 +471,7 @@ class _OrderModalState extends State<OrderModal> {
                   ],
                   const SizedBox(height: 16),
 
-                  // 4. Order Duration / Validity (Day, GTC, GTD - صالح حتى)
+                  // 5. Order Duration / Validity (Day, GTC, GTD - صالح حتى)
                   const Text('صلاحية الأمر (Order Duration)',
                       style: TextStyle(
                           fontSize: 13,
@@ -530,6 +630,7 @@ class _OrderModalState extends State<OrderModal> {
                                   validUntilDate: _validity == OrderValidity.gtd
                                       ? _selectedGtdDate
                                       : null,
+                                  executionRule: _executionRule,
                                   custodianBank: _selectedCustodianBank,
                                   currency: widget.stock.currency,
                                   timestamp: widget.existingOrder!.timestamp,
@@ -565,6 +666,7 @@ class _OrderModalState extends State<OrderModal> {
                                   validUntilDate: _validity == OrderValidity.gtd
                                       ? _selectedGtdDate
                                       : null,
+                                  executionRule: _executionRule,
                                   custodianBank: _selectedCustodianBank,
                                   currency: widget.stock.currency,
                                   timestamp: DateTime.now(),
@@ -577,7 +679,7 @@ class _OrderModalState extends State<OrderModal> {
                                   SnackBar(
                                     content: Text(
                                       success
-                                          ? 'تم إرسال الأمر بنجاح ${minBlockVal != null ? "(شرطي: دفعة $minBlockVal سهم)" : ""}!'
+                                          ? 'تم إرسال الأمر بنجاح (${_executionRule.name.toUpperCase()})!'
                                           : 'عذراً، القوة الشرائية غير كافية لتنفيذ الأمر.',
                                     ),
                                     backgroundColor: success
