@@ -122,17 +122,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'زياد أحمد (مستثمر معتمد)',
-                    style: TextStyle(
+                  Text(
+                    AppStrings.userName,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'رقم الحساب الموحد (Unified ID): #EGX-892104',
-                    style: TextStyle(fontSize: 12),
+                  Text(
+                    AppStrings.unifiedId,
+                    style: const TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 6),
                   Container(
@@ -141,9 +141,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.greenPositive.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text(
-                      'حساب مفعل - الهيئة العامة للرقابة المالية (FRA)',
-                      style: TextStyle(
+                    child: Text(
+                      AppStrings.fraAccount,
+                      style: const TextStyle(
                           color: AppColors.greenPositive,
                           fontSize: 10,
                           fontWeight: FontWeight.bold),
@@ -179,18 +179,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'إضافة أموال للمحفظة',
-                  style: TextStyle(
+                  AppStrings.depositBannerTitle,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'إيداع فوري عبر InstaPay والبطاقات المصرفية',
-                  style: TextStyle(fontSize: 11),
+                  AppStrings.depositBannerSubtitle,
+                  style: const TextStyle(fontSize: 11),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -205,8 +205,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             icon: const Icon(Icons.add, color: Colors.white, size: 16),
-            label: const Text('إيداع الآن',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+            label: Text(AppStrings.depositNow,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
             onPressed: () {
               showModalBottomSheet(
                 context: context,
@@ -299,8 +299,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final msg = messages[index];
           return ListTile(
             leading: const Icon(Icons.mark_email_unread, color: AppColors.accentBlue),
-            title: Text(msg.titleAr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            subtitle: Text(msg.bodyAr, style: const TextStyle(fontSize: 12)),
+            title: Text(AppLanguage.isArabic ? msg.titleAr : msg.titleEn,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            subtitle: Text(AppLanguage.isArabic ? msg.bodyAr : msg.bodyEn,
+                style: const TextStyle(fontSize: 12)),
           );
         },
       ),
@@ -318,11 +320,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         separatorBuilder: (_, __) => const Divider(color: AppColors.borderDark),
         itemBuilder: (context, index) {
           final trf = transfers[index];
+          final type = AppLanguage.isArabic ? trf.typeAr : trf.typeEn;
+          final method = AppLanguage.isArabic ? trf.methodAr : trf.methodEn;
+          final status = AppLanguage.isArabic ? trf.statusAr : trf.statusEn;
+
           return ListTile(
             leading: const Icon(Icons.arrow_downward, color: AppColors.greenPositive),
-            title: Text('${trf.typeAr} - ${trf.amount.toStringAsFixed(2)} ${trf.currency}',
+            title: Text('$type - ${trf.amount.toStringAsFixed(2)} ${trf.currency}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: Text('طريقة الإيداع: ${trf.methodAr} • الحالة: ${trf.statusAr}',
+            subtitle: Text('${AppLanguage.isArabic ? "طريقة الإيداع" : "Method"}: $method • ${AppLanguage.isArabic ? "الحالة" : "Status"}: $status',
                 style: const TextStyle(fontSize: 12)),
           );
         },
@@ -343,14 +349,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final st = statements[index];
           return ListTile(
             leading: const Icon(Icons.picture_as_pdf, color: AppColors.redNegative),
-            title: Text(st.titleAr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            subtitle: Text('${st.periodAr} • ${st.fileSize}',
+            title: Text(AppLanguage.isArabic ? st.titleAr : st.titleEn,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            subtitle: Text('${AppLanguage.isArabic ? st.periodAr : st.periodEn} • ${st.fileSize}',
                 style: const TextStyle(fontSize: 12)),
             trailing: IconButton(
               icon: const Icon(Icons.download, color: AppColors.accentBlue),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('جاري تحميل ${st.titleAr}...')),
+                  SnackBar(content: Text('${AppLanguage.isArabic ? "جاري تحميل" : "Downloading"} ${AppLanguage.isArabic ? st.titleAr : st.titleEn}...')),
                 );
               },
             ),
@@ -373,15 +380,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final f = forms[index];
           return ListTile(
             leading: const Icon(Icons.assignment_turned_in, color: Colors.amber),
-            title: Text(f.titleAr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            subtitle: Text(f.descriptionAr, style: const TextStyle(fontSize: 12)),
+            title: Text(AppLanguage.isArabic ? f.titleAr : f.titleEn,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            subtitle: Text(AppLanguage.isArabic ? f.descriptionAr : f.descriptionEn,
+                style: const TextStyle(fontSize: 12)),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: AppColors.greenPositive.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Text(f.statusAr, style: const TextStyle(color: AppColors.greenPositive, fontSize: 10)),
+              child: Text(AppLanguage.isArabic ? f.statusAr : f.statusEn,
+                  style: const TextStyle(color: AppColors.greenPositive, fontSize: 10)),
             ),
           );
         },
@@ -439,24 +449,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : AppColors.borderLight),
                   SwitchListTile(
                     title: Text(AppStrings.biometricsLabel),
-                    subtitle: const Text(
-                        'تسجيل الدخول السريع والآمن للبيانات المالية'),
+                    subtitle: Text(AppStrings.biometricsSubtitle),
                     value: true,
                     activeThumbColor: AppColors.accentBlue,
                     onChanged: (val) {},
                   ),
                   SwitchListTile(
                     title: Text(AppStrings.notificationsLabel),
-                    subtitle: const Text(
-                        'تنبيهات أسعار وتأكيد تنفيذ أوامر البيع والشراء'),
+                    subtitle: Text(AppStrings.notificationsSubtitle),
                     value: true,
                     activeThumbColor: AppColors.accentBlue,
                     onChanged: (val) {},
                   ),
                   ListTile(
                     title: Text(AppStrings.changePasswordLabel),
-                    subtitle:
-                        const Text('إدخال كلمة المرور القديمة وتأكيد الجديدة'),
+                    subtitle: Text(AppStrings.changePasswordSubtitle),
                     leading: const Icon(Icons.key_outlined,
                         color: AppColors.accentBlue),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 14),
@@ -465,7 +472,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   ListTile(
-                    title: const Text('تغيير رمز PIN للتداول'),
+                    title: Text(AppStrings.changePinLabel),
+                    subtitle: Text(AppStrings.changePinSubtitle),
                     leading: const Icon(Icons.lock_outline,
                         color: AppColors.accentBlue),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 14),
@@ -529,7 +537,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: AppColors.accentBlue, size: 22),
                               const SizedBox(width: 8),
                               Text(
-                                'تغيير كلمة المرور (Change Password)',
+                                AppStrings.changePasswordLabel,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -556,7 +564,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         obscureText: obscureOld,
                         style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
-                          labelText: 'كلمة المرور القديمة (Old Password)',
+                          labelText: AppLanguage.isArabic
+                              ? 'كلمة المرور القديمة'
+                              : 'Old Password',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
@@ -569,7 +579,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) {
-                            return 'يرجى إدخال كلمة المرور القديمة';
+                            return AppLanguage.isArabic
+                                ? 'يرجى إدخال كلمة المرور القديمة'
+                                : 'Please enter old password';
                           }
                           return null;
                         },
@@ -582,7 +594,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         obscureText: obscureNew,
                         style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
-                          labelText: 'كلمة المرور الجديدة (New Password)',
+                          labelText: AppLanguage.isArabic
+                              ? 'كلمة المرور الجديدة'
+                              : 'New Password',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.lock_reset),
                           suffixIcon: IconButton(
@@ -595,7 +609,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         validator: (val) {
                           if (val == null || val.trim().length < 6) {
-                            return 'كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف/أرقام';
+                            return AppLanguage.isArabic
+                                ? 'كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف/أرقام'
+                                : 'Password must be at least 6 characters';
                           }
                           return null;
                         },
@@ -608,8 +624,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         obscureText: obscureConfirm,
                         style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
-                          labelText:
-                              'تأكيد كلمة المرور الجديدة (Confirm New Password)',
+                          labelText: AppLanguage.isArabic
+                              ? 'تأكيد كلمة المرور الجديدة'
+                              : 'Confirm New Password',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.check_circle_outline),
                           suffixIcon: IconButton(
@@ -622,7 +639,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         validator: (val) {
                           if (val != newPasswordController.text) {
-                            return 'كلمة المرور الجديدة غير متطابقة مع التأكيد';
+                            return AppLanguage.isArabic
+                                ? 'كلمة المرور الجديدة غير متطابقة مع التأكيد'
+                                : 'Passwords do not match';
                           }
                           return null;
                         },
@@ -644,16 +663,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (formKey.currentState!.validate()) {
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('تم تغيير كلمة المرور بنجاح!'),
+                                SnackBar(
+                                  content: Text(AppLanguage.isArabic
+                                      ? 'تم تغيير كلمة المرور بنجاح!'
+                                      : 'Password changed successfully!'),
                                   backgroundColor: AppColors.greenPositive,
                                 ),
                               );
                             }
                           },
-                          child: const Text(
-                            'حفظ كلمة المرور الجديدة',
-                            style: TextStyle(
+                          child: Text(
+                            AppLanguage.isArabic
+                                ? 'حفظ كلمة المرور الجديدة'
+                                : 'Save New Password',
+                            style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
@@ -676,17 +699,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _showCustomBottomSheet(
       context,
       AppStrings.aboutAppTitle,
-      const Column(
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('تطبيق التداول المتقدم v2.4.0', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          SizedBox(height: 8),
           Text(
-            'مرخص ومُعتمد رسمياً من الهيئة العامة للرقابة المالية (FRA) برقم ترخيص #782 للوساطة في الأوراق المالية بالبورصة المصرية.',
-            style: TextStyle(height: 1.4),
+            AppLanguage.isArabic
+                ? 'تطبيق التداول المتقدم v2.4.0'
+                : 'Advanced Trading App v2.4.0',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-          SizedBox(height: 12),
-          Text('جميع حقوق الملكية والتشفير محفوظة © 2024', style: TextStyle(fontSize: 11)),
+          const SizedBox(height: 8),
+          Text(
+            AppLanguage.isArabic
+                ? 'مرخص ومُعتمد رسمياً من الهيئة العامة للرقابة المالية للوساطة في الأوراق المالية بالبورصة المصرية برقم ترخيص #782.'
+                : 'Officially licensed and accredited by the Financial Regulatory Authority #782 for brokerage in EGX.',
+            style: const TextStyle(height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            AppLanguage.isArabic
+                ? 'جميع حقوق الملكية والتشفير محفوظة © 2024'
+                : 'All rights and encryption reserved © 2024',
+            style: const TextStyle(fontSize: 11),
+          ),
         ],
       ),
     );

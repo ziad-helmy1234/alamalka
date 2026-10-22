@@ -340,7 +340,9 @@ class StockService {
                 InboxMessage(
                   id: 'MSG-ALERT-${DateTime.now().millisecondsSinceEpoch}',
                   titleAr: 'تنبيه سعر: ${stock.symbol}',
+                  titleEn: 'Price Alert: ${stock.symbol}',
                   bodyAr: 'وصل سعر سهم ${stock.nameAr} إلى ${newPrice.toStringAsFixed(2)} ${stock.currency} (${alert.conditionTextAr} ${alert.targetPrice.toStringAsFixed(2)})!',
+                  bodyEn: 'Stock ${stock.symbol} reached ${newPrice.toStringAsFixed(2)} ${stock.currency} (Target: ${alert.targetPrice.toStringAsFixed(2)})!',
                   timestamp: DateTime.now(),
                   isRead: false,
                 ),
@@ -496,79 +498,102 @@ class StockService {
   }
 
   // Portfolio & Wallet
-  List<TransferRecord> _transferHistory = [
+  final List<TransferRecord> _transferHistory = [
     TransferRecord(
       id: 'TRF-9021',
       amount: 50000.0,
       currency: 'EGP',
       typeAr: 'إيداع نقدي',
-      methodAr: 'InstaPay',
+      typeEn: 'Cash Deposit',
+      methodAr: 'انستا باي',
+      methodEn: 'InstaPay',
       timestamp: DateTime.now().subtract(const Duration(days: 2)),
       statusAr: 'مكتمل بنجاح',
+      statusEn: 'Completed',
     ),
     TransferRecord(
       id: 'TRF-8840',
       amount: 2500.0,
       currency: 'USD',
       typeAr: 'إيداع نقدي',
+      typeEn: 'Cash Deposit',
       methodAr: 'تحويل بنكي',
+      methodEn: 'Bank Transfer',
       timestamp: DateTime.now().subtract(const Duration(days: 10)),
       statusAr: 'مكتمل بنجاح',
+      statusEn: 'Completed',
     ),
   ];
 
-  List<InboxMessage> _inboxMessages = [
+  final List<InboxMessage> _inboxMessages = [
     InboxMessage(
       id: 'MSG-1',
-      titleAr: 'تأكيد إيداع مبلغ 50,000 ج.م عبر InstaPay',
+      titleAr: 'تأكيد إيداع مبلغ 50,000 ج.م عبر انستا باي',
+      titleEn: 'Deposit Confirmation 50,000 EGP via InstaPay',
       bodyAr: 'تمت إضافة المبلغ بنجاح إلى رصيد محفظتك الجاري والقوة الشرائية.',
+      bodyEn: 'Funds successfully credited to your portfolio balance and buying power.',
       timestamp: DateTime.now().subtract(const Duration(days: 2)),
       isRead: false,
     ),
     InboxMessage(
       id: 'MSG-2',
-      titleAr: 'تأكيد تنفيذ أمر شراء سهم TMGH',
+      titleAr: 'تأكيد تنفيذ أمر شراء سهم طلعت مصطفى',
+      titleEn: 'Order Execution Confirmation for TMGH',
       bodyAr: 'تم تنفيذ أمر الشراء لعدد 500 سهم بسعر 60.00 ج.م للسهم.',
+      bodyEn: 'Buy order executed for 500 shares at 60.00 EGP per share.',
       timestamp: DateTime.now().subtract(const Duration(days: 3)),
       isRead: true,
     ),
   ];
 
-  List<StatementDoc> _statements = [
+  final List<StatementDoc> _statements = [
     StatementDoc(
       id: 'ST-2024-Q2',
       titleAr: 'كشف الحساب الربع سنوي - الربع الثاني 2024',
+      titleEn: 'Quarterly Statement - Q2 2024',
       periodAr: 'أبريل - يونيو 2024',
+      periodEn: 'April - June 2024',
       date: DateTime.now().subtract(const Duration(days: 15)),
       fileSize: '1.4 MB (PDF)',
     ),
     StatementDoc(
       id: 'ST-2024-06',
       titleAr: 'كشف الحساب الشهري - يونيو 2024',
+      titleEn: 'Monthly Statement - June 2024',
       periodAr: 'يونيو 2024',
+      periodEn: 'June 2024',
       date: DateTime.now().subtract(const Duration(days: 30)),
       fileSize: '850 KB (PDF)',
     ),
   ];
 
-  List<FormDoc> _forms = [
+  final List<FormDoc> _forms = [
     FormDoc(
       id: 'FORM-KYC',
-      titleAr: 'نموذج اعرف عميلك (KYC) المحدث',
+      titleAr: 'نموذج اعرف عميلك المحدث',
+      titleEn: 'Updated Know Your Customer Form (KYC)',
       descriptionAr: 'بيانات الهوية والبيانات المالية المعتمدة لدى الهيئة العامة للرقابة المالية.',
+      descriptionEn: 'Verified identity and financial declarations with FRA.',
       statusAr: 'مكتمل ومعتمد',
+      statusEn: 'Completed & Approved',
     ),
     FormDoc(
       id: 'FORM-W8',
-      titleAr: 'نموذج W-8BEN لتداول الأسهم بالدولار (USD)',
+      titleAr: 'نموذج الإقرار الضريبي لتداول الأسهم بالدولار',
+      titleEn: 'W-8BEN Tax Declaration for USD Trading',
       descriptionAr: 'الإقرار الضريبي المعتمد لتداول الأسهم والشهادات المقومة بالدولار.',
+      descriptionEn: 'Approved tax declaration for trading USD denominated shares.',
       statusAr: 'مكتمل ومعتمد',
+      statusEn: 'Completed & Approved',
     ),
     FormDoc(
       id: 'FORM-PWR',
       titleAr: 'طلب رفع حدود القوة الشرائية المباشرة',
+      titleEn: 'Buying Power Limit Increase Request',
       descriptionAr: 'نموذج طلب زيادة التسهيلات والقوة الشرائية اللحظية.',
+      descriptionEn: 'Form to request higher instant buying power limits.',
       statusAr: 'متاح للتقديم',
+      statusEn: 'Available to Submit',
     ),
   ];
 
@@ -593,9 +618,12 @@ class StockService {
         amount: amount,
         currency: currency,
         typeAr: 'إيداع نقدي',
+        typeEn: 'Cash Deposit',
         methodAr: methodAr,
+        methodEn: methodAr,
         timestamp: DateTime.now(),
         statusAr: 'مكتمل بنجاح',
+        statusEn: 'Completed',
       ),
     );
 
@@ -604,7 +632,9 @@ class StockService {
       InboxMessage(
         id: 'MSG-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         titleAr: 'تأكيد إيداع $amount $currency عبر $methodAr',
+        titleEn: 'Deposit Confirmation $amount $currency via $methodAr',
         bodyAr: 'تمت إضافة المبلغ بنجاح إلى محفظتك والقوة الشرائية المتاحة.',
+        bodyEn: 'Amount successfully credited to your portfolio balance and buying power.',
         timestamp: DateTime.now(),
         isRead: false,
       ),
@@ -670,7 +700,9 @@ class StockService {
       InboxMessage(
         id: 'MSG-${DateTime.now().millisecondsSinceEpoch}',
         titleAr: 'إلغاء أمر ${order.symbol}',
+        titleEn: 'Order Cancelled: ${order.symbol}',
         bodyAr: 'تم إلغاء الأمر ${order.id} بنجاح وإعادة القوة الشرائية المتبقية إلى محفظتك.',
+        bodyEn: 'Order ${order.id} was successfully cancelled and buying power refunded.',
         timestamp: DateTime.now(),
         isRead: false,
       ),
@@ -706,7 +738,9 @@ class StockService {
       InboxMessage(
         id: 'MSG-${DateTime.now().millisecondsSinceEpoch}',
         titleAr: 'تعديل أمر ${editedOrder.symbol}',
+        titleEn: 'Order Modified: ${editedOrder.symbol}',
         bodyAr: 'تم تعديل بيانات الأمر ${editedOrder.id} بنجاح بنظام البورصة المصرية.',
+        bodyEn: 'Order ${editedOrder.id} parameters modified successfully.',
         timestamp: DateTime.now(),
         isRead: false,
       ),
@@ -732,10 +766,14 @@ class StockService {
         liquiditySiphonImpactScore: 8.4,
         marketImpactSummaryAr:
             'طرح ضخم بقيمة 2.5 مليار جنيه سيؤدي لسحب سيولة مؤقتة من أسهم التكنولوجيا المالية والعقارات (مثل FWRY و TMGH) بنسبة متوقعة 3-5% خلال فترة الاكتتاب.',
+        marketImpactSummaryEn:
+            'A massive 2.5 Billion EGP IPO will temporarily siphon market liquidity from FinTech and Real Estate stocks (e.g. FWRY & TMGH) by 3-5% during subscription.',
         affectedSectorsAr: ['تكنولوجيا الاتصالات', 'خدمات مالية غير مصرفية', 'عقارات'],
         affectedPortfolioStocks: ['FWRY', 'TMGH'],
         actionableInsightAr:
             'توقع فرص شراء جيدة عند انخفاض أسعار FWRY و HRHO المؤقت أثناء تحويل المستثمرين لسيولهم لتغطية اكتتاب فاليو.',
+        actionableInsightEn:
+            'Expect attractive buy dips for FWRY & HRHO as institutional funds temporarily reallocate liquidity into Valu IPO.',
       ),
       IPORippleEffect(
         ipoSymbol: 'CHMI',
@@ -751,10 +789,14 @@ class StockService {
         liquiditySiphonImpactScore: 6.2,
         marketImpactSummaryAr:
             'طرح متخصص قد يرفع تقييم مضاعفات ربحية قطاع البتروكيماويات والسماد ككل، مما ينعكس إيجابياً على سهم ABUK.',
+        marketImpactSummaryEn:
+            'A specialized listing expected to lift P/E multiples across the Petrochemical sector, positively impacting ABUK.',
         affectedSectorsAr: ['كيماويات وأسمدة', 'صناعة وطاقة'],
         affectedPortfolioStocks: ['ABUK'],
         actionableInsightAr:
             'إعادة تقييم قطاع الأسمدة والكيماويات قد تحفز صعود ABUK بنسبة 6-8% مع قرب إعلان تقييم الطرح النهائي.',
+        actionableInsightEn:
+            'Petrochemical sector re-rating could drive a 6-8% rally for ABUK upon final IPO valuation disclosure.',
       ),
     ];
   }
