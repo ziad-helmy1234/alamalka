@@ -306,10 +306,10 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 ),
               ),
 
-              // Page Dots Indicator •••••
+              // Page Dots Indicator ••••••
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
+                children: List.generate(6, (index) {
                   return Container(
                     width: _activePageIndex == index ? 10 : 6,
                     height: 6,
@@ -335,19 +335,22 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     });
                   },
                   children: [
-                    // Page 1: الرسم البياني وأداء السهم الأساسي (First Page)
+                    // Page 1: الرسم البياني لأداء سعر السهم
                     _buildPerformanceAndPricePage(currentStock),
 
-                    // Page 2: تفاصيل جدول بيانات السيولة ورأس المال
+                    // Page 2: رسم أحجام التداول والسيولة المستقل (Volume Histogram Alone)
+                    _buildVolumeHistogramPage(currentStock),
+
+                    // Page 3: تفاصيل جدول بيانات السيولة ورأس المال
                     _buildBasicStatsPage(currentStock),
 
-                    // Page 3: السوق بالسعر
+                    // Page 4: السوق بالسعر
                     _buildMarketDepthByPricePage(currentStock),
 
-                    // Page 4: السوق بالأوامر
+                    // Page 5: السوق بالأوامر
                     _buildMarketDepthByOrdersPage(currentStock),
 
-                    // Page 5: إجمالي التنفيذات
+                    // Page 6: إجمالي التنفيذات
                     _buildExecutionsPage(currentStock),
                   ],
                 ),
@@ -365,19 +368,21 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       case 0:
         return 'أداء السهم والرسم البياني';
       case 1:
-        return 'بيانات السوق الأساسية';
+        return 'أحجام التداول والسيولة';
       case 2:
-        return 'السوق بالسعر';
+        return 'بيانات السوق الأساسية';
       case 3:
-        return 'السوق بالأوامر';
+        return 'السوق بالسعر';
       case 4:
+        return 'السوق بالأوامر';
+      case 5:
         return 'إجمالي التنفيذات';
       default:
         return '';
     }
   }
 
-  // PAGE 1: Stock Performance Chart, Volume Histogram & Key Stats Overview (First Page)
+  // PAGE 1: Stock Price Line Chart & Key Stats Overview (First Page)
   Widget _buildPerformanceAndPricePage(Stock stock) {
     final history = _getFilteredHistory(stock, _selectedTimeframe);
     final isChartPositive = history.length >= 2
@@ -389,7 +394,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Separate Stock Price Line Chart Card
+          // Stock Price Line Chart Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -417,7 +422,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
 
                   // Dedicated Stock Price Line Chart Painter
                   SizedBox(
-                    height: 180,
+                    height: 220,
                     width: double.infinity,
                     child: CustomPaint(
                       painter: StockPriceLinePainter(
@@ -476,56 +481,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           ),
           const SizedBox(height: 16),
 
-          // 2. Separate Volume Spikes Histogram Chart Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.bar_chart_rounded,
-                          color: AppColors.goldSharia, size: 20),
-                      SizedBox(width: 6),
-                      Text('رسم أحجام التداول والسيولة (Volume Histogram)',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Separate Volume Histogram Painter
-                  SizedBox(
-                    height: 110,
-                    width: double.infinity,
-                    child: CustomPaint(
-                      painter: StockVolumeHistogramPainter(
-                        history: history,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Time Markers Row (10:00, 10:41, 11:21, 12:01, 12:42, 13:24, 14:06)
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('10:00', style: TextStyle(fontSize: 10)),
-                      Text('10:41', style: TextStyle(fontSize: 10)),
-                      Text('11:21', style: TextStyle(fontSize: 10)),
-                      Text('12:01', style: TextStyle(fontSize: 10)),
-                      Text('12:42', style: TextStyle(fontSize: 10)),
-                      Text('13:24', style: TextStyle(fontSize: 10)),
-                      Text('14:06', style: TextStyle(fontSize: 10)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // 3. Quick Key Stats Overview Card
+          // Quick Key Stats Overview Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -544,7 +500,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       _buildStatCol('الإغلاق السابق',
                           '${stock.previousClose.toStringAsFixed(3)} ${stock.currency}'),
                       _buildStatCol('مضاعف الربحية P/E',
-                          '${stock.peRatio.toStringAsFixed(2)}'),
+                          stock.peRatio.toStringAsFixed(2)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -556,7 +512,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       _buildStatCol('أدنى سعر اليوم',
                           '${stock.dayLow.toStringAsFixed(3)} ${stock.currency}'),
                       _buildStatCol('حجم التداول اليوم',
-                          '${_formatNum(stock.volume.toInt())}'),
+                          _formatNum(stock.volume.toInt())),
                     ],
                   ),
                 ],
@@ -568,7 +524,72 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 2: Basic Stats Table (Images 5 & 6)
+  // PAGE 2: Dedicated Volume Histogram Chart Alone (Page 2)
+  Widget _buildVolumeHistogramPage(Stock stock) {
+    final history = _getFilteredHistory(stock, _selectedTimeframe);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.bar_chart_rounded,
+                      color: AppColors.goldSharia, size: 22),
+                  SizedBox(width: 8),
+                  Text('الرسم البياني لأحجام التداول والسيولة (Volume Spikes)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                ],
+              ),
+              Divider(color: Theme.of(context).dividerColor, height: 20),
+              const SizedBox(height: 8),
+
+              // Dedicated Full Volume Histogram Painter
+              SizedBox(
+                height: 250,
+                width: double.infinity,
+                child: CustomPaint(
+                  painter: StockVolumeHistogramPainter(
+                    history: history,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Time Markers Row (10:00, 10:41, 11:21, 12:01, 12:42, 13:24, 14:06)
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('10:00', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('10:41', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('11:21', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('12:01', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('12:42', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('13:24', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('14:06', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Divider(color: Theme.of(context).dividerColor, height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildStatCol('إجمالي كمية التداول', '${_formatNum(stock.volume.toInt())} سهم'),
+                  _buildStatCol('قيمة السيولة المتداولة', '${_formatNum(stock.totalTradeValue.toInt())} ${stock.currency}'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // PAGE 3: Basic Stats Table (Images 5 & 6)
   Widget _buildBasicStatsPage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -603,7 +624,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 3: Market Depth By Price (Image 3)
+  // PAGE 4: Market Depth By Price (Image 3)
   Widget _buildMarketDepthByPricePage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -758,7 +779,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 4: Market Depth By Orders (Image 2)
+  // PAGE 5: Market Depth By Orders (Image 2)
   Widget _buildMarketDepthByOrdersPage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -855,7 +876,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 5: Executions Stream (Image 1)
+  // PAGE 6: Executions Stream (Image 1)
   Widget _buildExecutionsPage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -1177,7 +1198,7 @@ class StockPriceLinePainter extends CustomPainter {
   bool shouldRepaint(covariant StockPriceLinePainter oldDelegate) => true;
 }
 
-// Dedicated Separate Volume Histogram Painter (Card 2 on Page 1)
+// Dedicated Separate Volume Histogram Painter (Page 2)
 class StockVolumeHistogramPainter extends CustomPainter {
   final List<PricePoint> history;
 
