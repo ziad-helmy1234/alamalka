@@ -1,6 +1,6 @@
 enum OrderType { market, limit, stopLoss }
 enum OrderSide { buy, sell }
-enum OrderValidity { day, gtc } // GTC = Good Till Cancelled
+enum OrderValidity { day, gtc, gtd } // Day, Good Till Cancelled, Good Till Date
 enum OrderStatus { pending, executed, cancelled }
 
 class Order {
@@ -12,6 +12,8 @@ class Order {
   final double targetPrice;
   final int quantity;
   final OrderValidity validity;
+  final DateTime? validUntilDate;
+  final String custodianBank; // أمين الحفظ
   final String currency;
   final DateTime timestamp;
   OrderStatus status;
@@ -25,6 +27,8 @@ class Order {
     required this.targetPrice,
     required this.quantity,
     required this.validity,
+    this.validUntilDate,
+    this.custodianBank = 'البنك التجاري الدولي (CIB)',
     required this.currency,
     required this.timestamp,
     this.status = OrderStatus.pending,

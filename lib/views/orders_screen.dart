@@ -36,6 +36,15 @@ class OrdersScreen extends StatelessWidget {
                     ? AppColors.greenPositive
                     : AppColors.redNegative;
 
+                String validityText = 'أمر يومي (Day)';
+                if (order.validity == OrderValidity.gtc) {
+                  validityText = 'حتى الإلغاء (GTC)';
+                } else if (order.validity == OrderValidity.gtd &&
+                    order.validUntilDate != null) {
+                  validityText =
+                      'صالح حتى: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year} (GTD)';
+                }
+
                 return Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -87,6 +96,22 @@ class OrdersScreen extends StatelessWidget {
                           order.stockName,
                           style: const TextStyle(fontSize: 13),
                         ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.account_balance,
+                                size: 14, color: AppColors.accentBlue),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                'أمين الحفظ: ${order.custodianBank}',
+                                style: const TextStyle(
+                                    fontSize: 11, color: AppColors.accentBlue),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                         Divider(color: Theme.of(context).dividerColor, height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,7 +137,7 @@ class OrdersScreen extends StatelessWidget {
                               style: const TextStyle(fontSize: 12),
                             ),
                             Text(
-                              'الصلاحية: ${order.validity == OrderValidity.gtc ? "حتى الإلغاء (GTC)" : "أمر يومي (Day)"}',
+                              'الصلاحية: $validityText',
                               style: const TextStyle(fontSize: 12),
                             ),
                           ],
