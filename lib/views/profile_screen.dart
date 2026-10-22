@@ -18,86 +18,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final egpBalance = _stockService.getPortfolioSummary().egpTotalValue;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.person, color: AppColors.accentBlue),
-            SizedBox(width: 8),
-            Text('صفحة المستخدم والحساب'),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User Verified Account Header Card
-            _buildUserHeaderCard(egpBalance),
-            const SizedBox(height: 16),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                const Icon(Icons.person, color: AppColors.accentBlue),
+                const SizedBox(width: 8),
+                Text(AppStrings.accountTab),
+              ],
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // User Verified Account Header Card
+                _buildUserHeaderCard(egpBalance),
+                const SizedBox(height: 16),
 
-            // Quick Deposit Banner
-            _buildDepositBannerCard(context),
-            const SizedBox(height: 20),
+                // Quick Deposit Banner
+                _buildDepositBannerCard(context),
+                const SizedBox(height: 20),
 
-            // Menu Section Title
-            const Text(
-              'إدارة الحساب والمعاملات',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
+                // Menu Section Title
+                Text(
+                  AppStrings.accountManagement,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
 
-            // Menu Options Grid / List
-            _buildMenuItem(
-              icon: Icons.inbox,
-              iconColor: AppColors.accentBlue,
-              title: 'الرسائل والإشعارات (Inbox)',
-              subtitle: 'تأكيدات الأوامر والإيداعات والإشعارات الهامة',
-              badgeCount: _stockService.inboxMessages.where((m) => !m.isRead).length,
-              onTap: () => _showInboxSheet(context),
+                // Menu Options Grid / List
+                _buildMenuItem(
+                  icon: Icons.inbox,
+                  iconColor: AppColors.accentBlue,
+                  title: AppStrings.inboxTitle,
+                  subtitle: AppStrings.inboxSubtitle,
+                  badgeCount: _stockService.inboxMessages.where((m) => !m.isRead).length,
+                  onTap: () => _showInboxSheet(context),
+                ),
+                _buildMenuItem(
+                  icon: Icons.history_toggle_off,
+                  iconColor: AppColors.greenPositive,
+                  title: AppStrings.transferHistoryTitle,
+                  subtitle: AppStrings.transferHistorySubtitle,
+                  onTap: () => _showTransferHistorySheet(context),
+                ),
+                _buildMenuItem(
+                  icon: Icons.receipt_long,
+                  iconColor: Colors.purpleAccent,
+                  title: AppStrings.statementsTitle,
+                  subtitle: AppStrings.statementsSubtitle,
+                  onTap: () => _showStatementsSheet(context),
+                ),
+                _buildMenuItem(
+                  icon: Icons.description_outlined,
+                  iconColor: Colors.amber,
+                  title: AppStrings.formsTitle,
+                  subtitle: AppStrings.formsSubtitle,
+                  onTap: () => _showFormsSheet(context),
+                ),
+                _buildMenuItem(
+                  icon: Icons.settings,
+                  iconColor: AppColors.accentBlue,
+                  title: AppStrings.settingsTitle,
+                  subtitle: AppStrings.settingsSubtitle,
+                  onTap: () => _showSettingsSheet(context),
+                ),
+                _buildMenuItem(
+                  icon: Icons.info_outline,
+                  iconColor: Colors.cyan,
+                  title: AppStrings.aboutAppTitle,
+                  subtitle: AppStrings.aboutAppSubtitle,
+                  onTap: () => _showAboutAppSheet(context),
+                ),
+              ],
             ),
-            _buildMenuItem(
-              icon: Icons.history_toggle_off,
-              iconColor: AppColors.greenPositive,
-              title: 'سجل التحويلات والإيداعات (Transfer History)',
-              subtitle: 'سجل جميع عمليات الإيداع والسحب البنكي',
-              onTap: () => _showTransferHistorySheet(context),
-            ),
-            _buildMenuItem(
-              icon: Icons.receipt_long,
-              iconColor: Colors.purpleAccent,
-              title: 'كشوف الحساب والتقارير (Statements)',
-              subtitle: 'تحميل كشوف الحساب الشهرية والربع سنوية (PDF)',
-              onTap: () => _showStatementsSheet(context),
-            ),
-            _buildMenuItem(
-              icon: Icons.description_outlined,
-              iconColor: Colors.amber,
-              title: 'النماذج والمستندات (Forms & Docs)',
-              subtitle: 'نماذج KYC والقرارات الضريبية W-8BEN',
-              onTap: () => _showFormsSheet(context),
-            ),
-            _buildMenuItem(
-              icon: Icons.settings,
-              iconColor: AppColors.accentBlue,
-              title: 'الإعدادات والأمان (Settings)',
-              subtitle: 'تغيير رمز PIN، البصمة (Biometrics)، وتفضيلات التطبيق',
-              onTap: () => _showSettingsSheet(context),
-            ),
-            _buildMenuItem(
-              icon: Icons.info_outline,
-              iconColor: Colors.cyan,
-              title: 'عن التطبيق والمعلومات القانونية (About App)',
-              subtitle: 'تراخيص الهيئة العامة للرقابة المالية (FRA) والشروط',
-              onTap: () => _showAboutAppSheet(context),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -285,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final messages = _stockService.inboxMessages;
     _showCustomBottomSheet(
       context,
-      'الرسائل والإشعارات (Inbox)',
+      AppStrings.inboxTitle,
       ListView.separated(
         shrinkWrap: true,
         itemCount: messages.length,
@@ -306,7 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final transfers = _stockService.transferHistory;
     _showCustomBottomSheet(
       context,
-      'سجل التحويلات والإيداعات (Transfer History)',
+      AppStrings.transferHistoryTitle,
       ListView.separated(
         shrinkWrap: true,
         itemCount: transfers.length,
@@ -329,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final statements = _stockService.statements;
     _showCustomBottomSheet(
       context,
-      'كشوف الحساب الشهرية (Statements)',
+      AppStrings.statementsTitle,
       ListView.separated(
         shrinkWrap: true,
         itemCount: statements.length,
@@ -359,7 +364,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final forms = _stockService.forms;
     _showCustomBottomSheet(
       context,
-      'النماذج والمستندات (Forms)',
+      AppStrings.formsTitle,
       ListView.separated(
         shrinkWrap: true,
         itemCount: forms.length,
@@ -670,7 +675,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showAboutAppSheet(BuildContext context) {
     _showCustomBottomSheet(
       context,
-      'عن التطبيق (About App)',
+      AppStrings.aboutAppTitle,
       const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
