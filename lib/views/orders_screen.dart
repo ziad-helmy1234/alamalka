@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'order_modal.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -18,18 +19,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.redNegative),
-            SizedBox(width: 8),
-            Text('إلغاء الأمر'),
+            const Icon(Icons.warning_amber_rounded, color: AppColors.redNegative),
+            const SizedBox(width: 8),
+            Text(AppStrings.cancelOrder),
           ],
         ),
-        content: Text('هل أنت مؤكد من إلغاء الأمر ${order.id} لشراء/بيع سهم ${order.symbol}؟ سيتم إعادة القوة الشرائية المتبقية إلى محفظتك.'),
+        content: Text(AppLanguage.isArabic
+            ? 'هل أنت مؤكد من إلغاء الأمر ${order.id} لشراء/بيع سهم ${order.symbol}؟ سيتم إعادة القوة الشرائية المتبقية إلى محفظتك.'
+            : 'Are you sure you want to cancel order ${order.id} for ${order.symbol}? Remaining buying power will be refunded.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('تراجع'),
+            child: Text(AppStrings.back),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.redNegative),
@@ -40,13 +43,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('تم إلغاء الأمر ${order.id} بنجاح وإعادة القوة الشرائية!'),
+                    content: Text(AppLanguage.isArabic
+                        ? 'تم إلغاء الأمر ${order.id} بنجاح وإعادة القوة الشرائية!'
+                        : 'Order ${order.id} cancelled successfully!'),
                     backgroundColor: AppColors.greenPositive,
                   ),
                 );
               }
             },
-            child: const Text('تأكيد الإلغاء', style: TextStyle(color: Colors.white)),
+            child: Text(AppLanguage.isArabic ? 'تأكيد الإلغاء' : 'Confirm Cancel',
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -80,13 +86,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final isBuy = order.side == OrderSide.buy;
     final sideColor = isBuy ? AppColors.greenPositive : AppColors.redNegative;
 
-    String validityText = 'أمر يومي (Day)';
+    String validityText = AppStrings.dayOrder;
     if (order.validity == OrderValidity.gtc) {
-      validityText = 'حتى الإلغاء (GTC)';
+      validityText = AppStrings.gtcOrder;
     } else if (order.validity == OrderValidity.gtd &&
         order.validUntilDate != null) {
-      validityText =
-          'صالح حتى: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year} (GTD)';
+      validityText = AppLanguage.isArabic
+          ? 'صالح حتى: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year}'
+          : 'Valid until: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year}';
     }
 
     showModalBottomSheet(
@@ -116,7 +123,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        isBuy ? 'أمر شراء' : 'أمر بيع',
+                        isBuy ? AppStrings.buy : AppStrings.sell,
                         style: TextStyle(
                           color: sideColor,
                           fontWeight: FontWeight.bold,
@@ -138,21 +145,34 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(order.stockName, style: const TextStyle(fontSize: 13)),
+            Text(AppLanguage.isArabic ? order.stockName : order.symbol,
+                style: const TextStyle(fontSize: 13)),
             Divider(color: Theme.of(context).dividerColor, height: 24),
 
             // Parameters Grid
-            _buildDetailRow('اسم السهم والرمز', '${order.stockName} (${order.symbol})'),
-            _buildDetailRow('نوع السعر', order.type == OrderType.limit ? 'سعر حد (Limit)' : 'سعر السوق (Market)'),
-            _buildDetailRow('قاعدة التنفيذ', order.executionRuleAr),
-            _buildDetailRow('السعر المستهدف', '${order.targetPrice.toStringAsFixed(2)} ${order.currency}'),
-            _buildDetailRow('الكمية الإجمالية', '${order.quantity} سهم'),
+            _buildDetailRow(
+                AppLanguage.isArabic ? 'اسم السهم والرمز' : 'Symbol & Stock',
+                '${AppLanguage.isArabic ? order.stockName : order.symbol} (${order.symbol})'),
+            _buildDetailRow(
+                AppStrings.pricingMode,
+                order.type == OrderType.limit
+                    ? AppStrings.limitPrice
+                    : AppStrings.marketPrice),
+            _buildDetailRow(AppStrings.executionRule,
+                AppLanguage.isArabic ? order.executionRuleAr : order.executionRuleShort),
+            _buildDetailRow(AppStrings.targetPriceLabel,
+                '${order.targetPrice.toStringAsFixed(2)} ${order.currency}'),
+            _buildDetailRow(AppStrings.quantityLabel, '${order.quantity}'),
             if (order.isConditional)
-              _buildDetailRow('شرط التنفيذ بالدفعات', 'دفعة لا تقل عن ${order.minimumBlockQuantity} سهم'),
-            _buildDetailRow('إجمالي قيمة الأمر', '${order.totalValue.toStringAsFixed(2)} ${order.currency}'),
-            _buildDetailRow('أمين الحفظ (Custodian)', order.custodianBank),
-            _buildDetailRow('صلاحية الأمر', validityText),
-            _buildDetailRow('وقت إنشاء الأمر', '${order.timestamp.hour}:${order.timestamp.minute.toString().padLeft(2, '0')} - ${order.timestamp.day}/${order.timestamp.month}/${order.timestamp.year}'),
+              _buildDetailRow(AppStrings.fillBlockSize,
+                  '${order.minimumBlockQuantity} ${AppLanguage.isArabic ? "سهم" : "shares"}'),
+            _buildDetailRow(AppStrings.totalOrderValue,
+                '${order.totalValue.toStringAsFixed(2)} ${order.currency}'),
+            _buildDetailRow(AppStrings.custodianBank, order.custodianBank),
+            _buildDetailRow(AppStrings.orderDuration, validityText),
+            _buildDetailRow(
+                AppLanguage.isArabic ? 'وقت إنشاء الأمر' : 'Created Time',
+                '${order.timestamp.hour}:${order.timestamp.minute.toString().padLeft(2, '0')} - ${order.timestamp.day}/${order.timestamp.month}/${order.timestamp.year}'),
 
             const SizedBox(height: 16),
 
@@ -169,8 +189,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.edit_note, color: AppColors.accentBlue),
-                      label: const Text('تعديل الأمر',
-                          style: TextStyle(
+                      label: Text(AppStrings.editOrder,
+                          style: const TextStyle(
                               color: AppColors.accentBlue,
                               fontWeight: FontWeight.bold)),
                       onPressed: () {
@@ -189,8 +209,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.cancel_outlined, color: Colors.white),
-                      label: const Text('إلغاء الأمر',
-                          style: TextStyle(
+                      label: Text(AppStrings.cancelOrder,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold)),
                       onPressed: () {
@@ -234,256 +254,262 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     final orders = _stockService.orders;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.assignment_outlined, color: AppColors.accentBlue),
-            SizedBox(width: 8),
-            Text('سجل قائمة الأوامر (Orders)'),
-          ],
-        ),
-      ),
-      body: orders.isEmpty
-          ? const Center(
-              child: Text('لا توجد أوامر منفذة أو معلقة حالياً'),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                final isBuy = order.side == OrderSide.buy;
-                final sideColor = isBuy
-                    ? AppColors.greenPositive
-                    : AppColors.redNegative;
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                const Icon(Icons.assignment_outlined, color: AppColors.accentBlue),
+                const SizedBox(width: 8),
+                Text(AppStrings.orderHistoryTitle),
+              ],
+            ),
+          ),
+          body: orders.isEmpty
+              ? Center(
+                  child: Text(AppStrings.noOrders),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: orders.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+                    final isBuy = order.side == OrderSide.buy;
+                    final sideColor = isBuy
+                        ? AppColors.greenPositive
+                        : AppColors.redNegative;
 
-                String validityText = 'أمر يومي (Day)';
-                if (order.validity == OrderValidity.gtc) {
-                  validityText = 'حتى الإلغاء (GTC)';
-                } else if (order.validity == OrderValidity.gtd &&
-                    order.validUntilDate != null) {
-                  validityText =
-                      'صالح حتى: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year} (GTD)';
-                }
+                    String validityText = AppStrings.dayOrder;
+                    if (order.validity == OrderValidity.gtc) {
+                      validityText = AppStrings.gtcOrder;
+                    } else if (order.validity == OrderValidity.gtd &&
+                        order.validUntilDate != null) {
+                      validityText = AppLanguage.isArabic
+                          ? 'صالح حتى: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year}'
+                          : 'Valid: ${order.validUntilDate!.day}/${order.validUntilDate!.month}/${order.validUntilDate!.year}';
+                    }
 
-                return Card(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => _showOrderDetailsSheet(order),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return Card(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _showOrderDetailsSheet(order),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: sideColor.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        isBuy ? 'شراء' : 'بيع',
-                                        style: TextStyle(
-                                          color: sideColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        '${order.symbol} (${order.id})',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              _buildStatusBadge(order.status),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                order.stockName,
-                                style: const TextStyle(fontSize: 13),
-                              ),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.accentBlue.withOpacity(0.12),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      'قاعدة: ${order.executionRuleShort}',
-                                      style: const TextStyle(
-                                          color: AppColors.accentBlue,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: sideColor.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            isBuy ? AppStrings.buy : AppStrings.sell,
+                                            style: TextStyle(
+                                              color: sideColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            '${order.symbol} (${order.id})',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  if (order.isConditional) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.goldSharia.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        'دفعة ${order.minimumBlockQuantity} سهم',
-                                        style: const TextStyle(
-                                            color: AppColors.goldSharia,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ],
+                                  const SizedBox(width: 8),
+                                  _buildStatusBadge(order.status),
                                 ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.account_balance,
-                                  size: 14, color: AppColors.accentBlue),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  'أمين الحفظ: ${order.custodianBank}',
-                                  style: const TextStyle(
-                                      fontSize: 11, color: AppColors.accentBlue),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    AppLanguage.isArabic ? order.stockName : order.symbol,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.accentBlue.withOpacity(0.12),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '${AppLanguage.isArabic ? "قاعدة" : "Rule"}: ${order.executionRuleShort}',
+                                          style: const TextStyle(
+                                              color: AppColors.accentBlue,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      if (order.isConditional) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.goldSharia.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            '${AppLanguage.isArabic ? "دفعة" : "Block"} ${order.minimumBlockQuantity}',
+                                            style: const TextStyle(
+                                                color: AppColors.goldSharia,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          Divider(color: Theme.of(context).dividerColor, height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'الكمية: ${order.quantity} سهم',
-                                style: const TextStyle(fontSize: 13),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.account_balance,
+                                      size: 14, color: AppColors.accentBlue),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      '${AppStrings.custodianBank}: ${order.custodianBank}',
+                                      style: const TextStyle(
+                                          fontSize: 11, color: AppColors.accentBlue),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'السعر: ${order.targetPrice.toStringAsFixed(2)} ${order.currency}',
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold),
+                              Divider(color: Theme.of(context).dividerColor, height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${AppLanguage.isArabic ? "الكمية" : "Qty"}: ${order.quantity}',
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                  Text(
+                                    '${AppLanguage.isArabic ? "السعر" : "Price"}: ${order.targetPrice.toStringAsFixed(2)} ${order.currency}',
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'نوع السعر: ${order.type == OrderType.limit ? "سعر حد (Limit)" : "سعر السوق (Market)"}',
-                                style: const TextStyle(fontSize: 12),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${AppStrings.pricingMode}: ${order.type == OrderType.limit ? AppStrings.limitPrice : AppStrings.marketPrice}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  Text(
+                                    '${AppStrings.orderDuration}: $validityText',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'الصلاحية: $validityText',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
 
-                          // Quick Action Buttons for Pending Orders on Card
-                          if (order.status == OrderStatus.pending) ...[
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton.icon(
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  icon: const Icon(Icons.edit_note,
-                                      size: 16, color: AppColors.accentBlue),
-                                  label: const Text('تعديل',
-                                      style: TextStyle(
-                                          color: AppColors.accentBlue,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
-                                  onPressed: () => _editOrder(order),
-                                ),
-                                const SizedBox(width: 12),
-                                TextButton.icon(
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  icon: const Icon(Icons.cancel_outlined,
-                                      size: 16, color: AppColors.redNegative),
-                                  label: const Text('إلغاء الأمر',
-                                      style: TextStyle(
-                                          color: AppColors.redNegative,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
-                                  onPressed: () => _cancelOrder(order),
+                              // Quick Action Buttons for Pending Orders on Card
+                              if (order.status == OrderStatus.pending) ...[
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      icon: const Icon(Icons.edit_note,
+                                          size: 16, color: AppColors.accentBlue),
+                                      label: Text(AppStrings.editOrder,
+                                          style: const TextStyle(
+                                              color: AppColors.accentBlue,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold)),
+                                      onPressed: () => _editOrder(order),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      icon: const Icon(Icons.cancel_outlined,
+                                          size: 16, color: AppColors.redNegative),
+                                      label: Text(AppStrings.cancelOrder,
+                                          style: const TextStyle(
+                                              color: AppColors.redNegative,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold)),
+                                      onPressed: () => _cancelOrder(order),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                          ],
-                        ],
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+        );
+      },
     );
   }
 
   Widget _buildStatusBadge(OrderStatus status) {
     Color bg = AppColors.borderDark;
-    String text = 'معلق';
+    String text = AppStrings.orderPending;
     Color textColor = AppColors.textPrimaryDark;
 
     switch (status) {
       case OrderStatus.pending:
         bg = Colors.amber.withOpacity(0.2);
-        text = 'قيد التنفيذ (معلق)';
+        text = AppStrings.orderPending;
         textColor = Colors.amber;
         break;
       case OrderStatus.executed:
         bg = AppColors.greenPositive.withOpacity(0.2);
-        text = 'تم التنفيذ';
+        text = AppStrings.orderExecuted;
         textColor = AppColors.greenPositive;
         break;
       case OrderStatus.cancelled:
         bg = AppColors.redNegative.withOpacity(0.2);
-        text = 'ملغى';
+        text = AppStrings.orderCancelled;
         textColor = AppColors.redNegative;
         break;
     }

@@ -35,13 +35,17 @@ class AppStrings {
   static String get viewAll => AppLanguage.isArabic ? 'عرض الكل' : 'View All';
   static String get allListedStocks => AppLanguage.isArabic ? 'جميع الأسهم المقيدة' : 'All Listed Stocks';
 
-  // Actions
+  // Actions & Buttons
   static String get buy => AppLanguage.isArabic ? 'شراء' : 'Buy';
   static String get sell => AppLanguage.isArabic ? 'بيع' : 'Sell';
   static String get deposit => AppLanguage.isArabic ? 'إضافة أموال / إيداع' : 'Deposit Funds';
+  static String get depositNow => AppLanguage.isArabic ? 'إيداع الآن' : 'Deposit Now';
+  static String get confirmDeposit => AppLanguage.isArabic ? 'تأكيد الإيداع' : 'Confirm Deposit';
   static String get cancelOrder => AppLanguage.isArabic ? 'إلغاء الأمر' : 'Cancel Order';
   static String get editOrder => AppLanguage.isArabic ? 'تعديل الأمر' : 'Edit Order';
   static String get saveChanges => AppLanguage.isArabic ? 'حفظ التعديلات' : 'Save Changes';
+  static String get confirm => AppLanguage.isArabic ? 'تأكيد' : 'Confirm';
+  static String get back => AppLanguage.isArabic ? 'تراجع' : 'Cancel';
 
   // Settings & Profile
   static String get accountManagement => AppLanguage.isArabic ? 'إدارة الحساب والمعاملات' : 'Account & Transaction Management';
@@ -60,7 +64,7 @@ class AppStrings {
 
   // Settings Items
   static String get appLanguageLabel => AppLanguage.isArabic ? 'لغة التطبيق' : 'App Language';
-  static String get appLanguageSubtitle => AppLanguage.isArabic ? 'التبديل بين اللغة العربية والإنجليزي' : 'Switch between Arabic and English';
+  static String get appLanguageSubtitle => AppLanguage.isArabic ? 'التبديل بين العربية والإنجليزية' : 'Switch between Arabic and English';
   static String get lightModeLabel => AppLanguage.isArabic ? 'الوضع الفاتح' : 'Light Mode';
   static String get lightModeSubtitle => AppLanguage.isArabic ? 'التبديل بين الثيم الداكن والفاتح للتطبيق' : 'Switch between Dark and Light Theme';
   static String get biometricsLabel => AppLanguage.isArabic ? 'التسجيل بالبصمة' : 'Biometrics / Face ID';
@@ -76,15 +80,71 @@ class AppStrings {
   static String get cashBalance => AppLanguage.isArabic ? 'الرصيد النقدي المتاح' : 'Available Cash Balance';
   static String get ownedHoldings => AppLanguage.isArabic ? 'الأسهم المملوكة' : 'Owned Holdings';
   static String get portfolioPerformance => AppLanguage.isArabic ? 'أداء المحفظة والأرباح' : 'Portfolio Performance';
+  static String get noHoldings => AppLanguage.isArabic ? 'لا توجد أسهم مملوكة حالياً بهذه العملة' : 'No holdings currently in this currency';
 
-  // Order Details
-  static String get orderHistoryTitle => AppLanguage.isArabic ? 'سجل قائمة الأوامر' : 'Order History';
+  // Order Modal & Trading Terms
   static String get custodianBank => AppLanguage.isArabic ? 'أمين الحفظ' : 'Custodian Bank';
+  static String get pricingMode => AppLanguage.isArabic ? 'نوع السعر' : 'Pricing Mode';
+  static String get limitPrice => AppLanguage.isArabic ? 'سعر حد' : 'Limit Price';
+  static String get marketPrice => AppLanguage.isArabic ? 'سعر السوق' : 'Market Price';
+  static String get quantityLabel => AppLanguage.isArabic ? 'الكمية (عدد الأسهم)' : 'Quantity (Shares)';
+  static String get targetPriceLabel => AppLanguage.isArabic ? 'السعر المستهدف' : 'Target Price';
   static String get executionRule => AppLanguage.isArabic ? 'قاعدة التنفيذ' : 'Execution Rule';
+  static String get fillBlockCondition => AppLanguage.isArabic ? 'أمر شرطي (تنفيذ بالدفعات)' : 'Fill Block Condition';
+  static String get minBlockQuantity => AppLanguage.isArabic ? 'الحد الأدنى لكمية الدفعة' : 'Minimum Fill Block Quantity';
   static String get orderDuration => AppLanguage.isArabic ? 'صلاحية الأمر' : 'Order Duration';
-  static String get fillBlockSize => AppLanguage.isArabic ? 'أمر شرطي (تنفيذ بالدفعات)' : 'Conditional Fill Block Size';
+  static String get dayOrder => AppLanguage.isArabic ? 'أمر يومي' : 'Day Order';
+  static String get gtcOrder => AppLanguage.isArabic ? 'حتى الإلغاء' : 'Good-Till-Cancel (GTC)';
+  static String get gtdOrder => AppLanguage.isArabic ? 'صالح حتى تاريخ' : 'Good-Till-Date (GTD)';
+  static String get totalOrderValue => AppLanguage.isArabic ? 'إجمالي قيمة الأمر' : 'Total Order Value';
+
+  // Order Details & History
+  static String get orderHistoryTitle => AppLanguage.isArabic ? 'سجل قائمة الأوامر' : 'Order History';
+  static String get noOrders => AppLanguage.isArabic ? 'لا توجد أوامر منفذة أو معلقة حالياً' : 'No pending or executed orders currently';
+  static String get orderPending => AppLanguage.isArabic ? 'قيد التنفيذ (معلق)' : 'Pending Execution';
+  static String get orderExecuted => AppLanguage.isArabic ? 'تم التنفيذ' : 'Executed';
+  static String get orderCancelled => AppLanguage.isArabic ? 'ملغى' : 'Cancelled';
+
+  // Stock Detail Pages & Headers
+  static String get stockPerformanceTitle => AppLanguage.isArabic ? 'أداء السهم والرسم البياني' : 'Stock Performance & Chart';
+  static String get volumeSpikesTitle => AppLanguage.isArabic ? 'أحجام التداول والسيولة' : 'Trading Volume & Liquidity';
+  static String get basicStatsTitle => AppLanguage.isArabic ? 'بيانات السوق الأساسية' : 'Key Market Statistics';
+  static String get depthByPriceTitle => AppLanguage.isArabic ? 'السوق بالسعر' : 'Market Depth by Price';
+  static String get depthByOrdersTitle => AppLanguage.isArabic ? 'السوق بالأوامر' : 'Market Depth by Orders';
+  static String get executionsStreamTitle => AppLanguage.isArabic ? 'إجمالي التنفيذات اللحظية' : 'Real-time Trades Stream';
+
+  static String get bidsHeader => AppLanguage.isArabic ? 'طلبات الشراء' : 'Bids';
+  static String get asksHeader => AppLanguage.isArabic ? 'عروض البيع' : 'Asks';
+  static String get bidsOrderBook => AppLanguage.isArabic ? 'دفتر طلبات الشراء' : 'Bids Order Book';
+  static String get asksOrderBook => AppLanguage.isArabic ? 'دفتر عروض البيع' : 'Asks Order Book';
+
+  static String get lastPrice => AppLanguage.isArabic ? 'آخر سعر' : 'Last Price';
+  static String get changeValue => AppLanguage.isArabic ? 'قيمة التغير' : 'Price Change';
+  static String get openPrice => AppLanguage.isArabic ? 'سعر الفتح' : 'Open Price';
+  static String get previousClose => AppLanguage.isArabic ? 'الإغلاق السابق' : 'Previous Close';
+  static String get dayHigh => AppLanguage.isArabic ? 'أعلى سعر اليوم' : 'Day High';
+  static String get dayLow => AppLanguage.isArabic ? 'أدنى سعر اليوم' : 'Day Low';
+  static String get volume => AppLanguage.isArabic ? 'كمية التداول' : 'Trading Volume';
+  static String get numberOfTrades => AppLanguage.isArabic ? 'عدد العمليات' : 'Trade Count';
+  static String get totalTradeValue => AppLanguage.isArabic ? 'قيمة التداول' : 'Total Trade Value';
+  static String get marketCap => AppLanguage.isArabic ? 'رأس المال السوقي' : 'Market Cap';
+  static String get peRatio => AppLanguage.isArabic ? 'مضاعف الربحية' : 'P/E Ratio';
+
+  // IPO Ripple Effect
+  static String get ipoTrackerTitle => AppLanguage.isArabic ? 'تتبع تأثير الطروحات الأولية' : 'IPO Ripple Effect Tracker';
+  static String get ipoUspBadge => AppLanguage.isArabic ? 'تحليل الفجوة السعرية للسيولة' : 'Market Gap Liquidity Analysis';
+  static String get ipoHeaderDesc => AppLanguage.isArabic
+      ? 'تحليل تأثير الطروحات الأولية الجديدة على سيولة السوق وتعديل أسعار الأسهم والقطاعات المتأثرة في محفظتك.'
+      : 'Analyze the impact of new IPOs on market liquidity and portfolio stock pricing.';
 
   // Search Screen
   static String get searchHint => AppLanguage.isArabic ? 'ابحث بالاسم أو الرمز...' : 'Search by name or symbol...';
   static String get shariaFilter => AppLanguage.isArabic ? 'أسهم الشريعة الإسلامية' : 'Sharia Compliant Stocks';
+  static String get noSearchResults => AppLanguage.isArabic ? 'لا توجد أسهم تطابق نتائج البحث والتصنيف' : 'No stocks matching search or category filters';
+
+  // Watchlist
+  static String get emptyWatchlistTitle => AppLanguage.isArabic ? 'قائمة المراقبة فارغة حالياً' : 'Watchlist is currently empty';
+  static String get emptyWatchlistDesc => AppLanguage.isArabic
+      ? 'يمكنك إضافة أي سهم إلى قائمة المراقبة بالنقر على أيقونة الإشارة المرجعية في الشاشة الرئيسية أو شاشة البحث.'
+      : 'You can add any stock to your watchlist by tapping the bookmark icon on the markets or search page.';
 }

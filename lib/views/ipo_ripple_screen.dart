@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/ipo.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 
 class IPORippleScreen extends StatelessWidget {
   const IPORippleScreen({super.key});
@@ -11,93 +12,100 @@ class IPORippleScreen extends StatelessWidget {
     final StockService stockService = StockService();
     final ipoEffects = stockService.getUpcomingIPORippleEffects();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.auto_awesome, color: AppColors.goldSharia),
-            SizedBox(width: 8),
-            Text('تتبع تأثير الطروحات (IPO Ripple Effect)'),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // USP Header Banner
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.accentBlue.withOpacity(0.3),
-                    Theme.of(context).cardColor,
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.accentBlue.withOpacity(0.5),
-                ),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                const Icon(Icons.auto_awesome, color: AppColors.goldSharia),
+                const SizedBox(width: 8),
+                Text(AppStrings.ipoTrackerTitle),
+              ],
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // USP Header Banner
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.accentBlue.withOpacity(0.3),
+                        Theme.of(context).cardColor,
+                      ],
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.accentBlue.withOpacity(0.5),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.stars, color: AppColors.goldSharia, size: 22),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'خاصية استباقية حصرية (Market Gap USP)',
-                          style: TextStyle(
-                            color: AppColors.goldSharia,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                      Row(
+                        children: [
+                          const Icon(Icons.stars, color: AppColors.goldSharia, size: 22),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              AppStrings.ipoUspBadge,
+                              style: const TextStyle(
+                                color: AppColors.goldSharia,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppStrings.ipoHeaderDesc,
+                        style: const TextStyle(
+                            fontSize: 13,
+                            height: 1.4),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'تحليل تأثير الطروحات الأولية الجديدة (IPO Ripple Effect) على سيولة السوق وتعديل أسعار الأسهم والقطاعات المتأثرة في محفظتك.',
-                    style: TextStyle(
-                        fontSize: 13,
-                        height: 1.4),
+                ),
+                const SizedBox(height: 20),
+
+                Text(
+                  AppLanguage.isArabic
+                      ? 'الطروحات الأولية القادمة والتحليل الاستباقي'
+                      : 'Upcoming IPOs & Proactive Analysis',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 12),
 
-            const Text(
-              'الطروحات الأولية القادمة والتحليل الاستباقي',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+                // IPO Ripple Effect Cards
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: ipoEffects.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final ipo = ipoEffects[index];
+                    return _buildIPORippleCard(context, ipo);
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-
-            // IPO Ripple Effect Cards
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: ipoEffects.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final ipo = ipoEffects[index];
-                return _buildIPORippleCard(context, ipo);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -137,7 +145,7 @@ class IPORippleScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              ipo.companyNameAr,
+                              AppLanguage.isArabic ? ipo.companyNameAr : ipo.companyName,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
@@ -147,7 +155,7 @@ class IPORippleScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              ipo.sectorAr,
+                              AppLanguage.isArabic ? ipo.sectorAr : ipo.sector,
                               style: const TextStyle(fontSize: 12),
                             ),
                           ],
@@ -171,7 +179,7 @@ class IPORippleScreen extends StatelessWidget {
                       const Icon(Icons.waves, color: Colors.orange, size: 14),
                       const SizedBox(width: 4),
                       Text(
-                        'مؤشر السحب: ${ipo.liquiditySiphonImpactScore}/10',
+                        '${AppLanguage.isArabic ? "مؤشر السحب" : "Siphon Score"}: ${ipo.liquiditySiphonImpactScore}/10',
                         style: const TextStyle(
                             color: Colors.orange,
                             fontWeight: FontWeight.bold,
@@ -189,12 +197,14 @@ class IPORippleScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: _buildInfoCol('الحجم المستهدف للطرح',
-                      '${(ipo.targetFundingEgp / 1000000000).toStringAsFixed(1)} مليار جنيه'),
+                  child: _buildInfoCol(
+                      AppLanguage.isArabic ? 'الحجم المستهدف للطرح' : 'Target Funding',
+                      '${(ipo.targetFundingEgp / 1000000000).toStringAsFixed(1)} ${AppLanguage.isArabic ? "مليار جنيه" : "Billion EGP"}'),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildInfoCol('نطاق السعر المتوقع',
+                  child: _buildInfoCol(
+                      AppLanguage.isArabic ? 'نطاق السعر المتوقع' : 'Expected Price Range',
                       '${ipo.expectedPriceRangeMin} - ${ipo.expectedPriceRangeMax} EGP'),
                 ),
               ],
@@ -212,15 +222,17 @@ class IPORippleScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.info_outline,
+                      const Icon(Icons.info_outline,
                           color: AppColors.accentBlue, size: 16),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'تحليل تأثير السيولة (Market Liquidity Impact):',
-                          style: TextStyle(
+                          AppLanguage.isArabic
+                              ? 'تحليل تأثير السيولة:'
+                              : 'Market Liquidity Impact Analysis:',
+                          style: const TextStyle(
                               color: AppColors.accentBlue,
                               fontWeight: FontWeight.bold,
                               fontSize: 12),
@@ -258,7 +270,9 @@ class IPORippleScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'تنبيه محفظتك: الأسهم المتأثرة مؤقتاً بالسيولة لديك: ${ipo.affectedPortfolioStocks.join(', ')}',
+                        AppLanguage.isArabic
+                            ? 'تنبيه محفظتك: الأسهم المتأثرة مؤقتاً بالسيولة لديك: ${ipo.affectedPortfolioStocks.join(', ')}'
+                            : 'Portfolio Alert: Temporarily impacted holdings: ${ipo.affectedPortfolioStocks.join(', ')}',
                         style: const TextStyle(
                           color: AppColors.redNegative,
                           fontWeight: FontWeight.bold,
@@ -287,7 +301,9 @@ class IPORippleScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'توصية المستشار الاستراتيجي: ${ipo.actionableInsightAr}',
+                      AppLanguage.isArabic
+                          ? 'توصية المستشار الاستراتيجي: ${ipo.actionableInsightAr}'
+                          : 'Strategic Recommendation: ${ipo.actionableInsightAr}',
                       style: const TextStyle(
                         color: AppColors.greenPositive,
                         fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/stock.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'stock_detail_screen.dart';
 import 'news_events_screen.dart';
 import 'search_screen.dart';
@@ -18,82 +19,78 @@ class _MarketsScreenState extends State<MarketsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.candlestick_chart, color: AppColors.accentBlue),
-            SizedBox(width: 8),
-            Text('الأسواق والاستكشاف'),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: AppColors.accentBlue),
-            tooltip: 'البحث والتصنيفات',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SearchScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.newspaper, color: AppColors.accentBlue),
-            tooltip: 'الأخبار والأحداث',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const NewsEventsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder<List<Stock>>(
-        stream: _stockService.stocksStream,
-        initialData: _stockService.allStocks,
-        builder: (context, snapshot) {
-          final allStocks = snapshot.data ?? _stockService.allStocks;
-
-          return ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              // 1. Index Banner (EGX 30 / EGX 70 / EGX 100 EWI / EGX 35-LV)
-              _buildMarketIndicesBanner(context),
-
-              // 2. Biggest Winners Section
-              _buildTopGainersRow(),
-              const SizedBox(height: 12),
-
-              // 3. Biggest Losers Section
-              _buildTopLosersRow(),
-              const SizedBox(height: 16),
-
-              // 4. All Listed Stocks Header
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Text(
-                  'جميع الأسهم المقيدة',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                const Icon(Icons.candlestick_chart, color: AppColors.accentBlue),
+                const SizedBox(width: 8),
+                Text(AppStrings.marketsTitle),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.search, color: AppColors.accentBlue),
+                tooltip: AppStrings.searchTooltip,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SearchScreen()),
+                  );
+                },
               ),
-              Divider(color: Theme.of(context).dividerColor, height: 1),
-
-              // 5. Stock List Tiles
-              ...allStocks.map((stock) => Column(
-                    children: [
-                      _buildStockTile(stock),
-                      Divider(color: Theme.of(context).dividerColor, height: 1),
-                    ],
-                  )),
+              IconButton(
+                icon: const Icon(Icons.newspaper, color: AppColors.accentBlue),
+                tooltip: AppStrings.newsTooltip,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const NewsEventsScreen()),
+                  );
+                },
+              ),
             ],
-          );
-        },
-      ),
+          ),
+          body: StreamBuilder<List<Stock>>(
+            stream: _stockService.stocksStream,
+            initialData: _stockService.allStocks,
+            builder: (context, snapshot) {
+              final allStocks = snapshot.data ?? _stockService.allStocks;
+
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  _buildMarketIndicesBanner(context),
+                  _buildTopGainersRow(),
+                  const SizedBox(height: 12),
+                  _buildTopLosersRow(),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      AppStrings.allListedStocks,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  Divider(color: Theme.of(context).dividerColor, height: 1),
+                  ...allStocks.map((stock) => Column(
+                        children: [
+                          _buildStockTile(stock),
+                          Divider(color: Theme.of(context).dividerColor, height: 1),
+                        ],
+                      )),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -157,7 +154,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
     );
   }
 
-  // Section 1: Biggest Winners (Top Gainers)
+  // Section 1: Top Gainers
   Widget _buildTopGainersRow() {
     final gainers = _stockService.getTopGainers(limit: 5);
 
@@ -169,15 +166,15 @@ class _MarketsScreenState extends State<MarketsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Row(
                   children: [
-                    Icon(Icons.trending_up, color: AppColors.greenPositive, size: 20),
-                    SizedBox(width: 6),
+                    const Icon(Icons.trending_up, color: AppColors.greenPositive, size: 20),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'أعلى الأسهم ارتفاعاً (Biggest Winners)',
-                        style: TextStyle(
+                        AppStrings.topGainers,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: AppColors.greenPositive,
@@ -196,9 +193,9 @@ class _MarketsScreenState extends State<MarketsScreen> {
                     MaterialPageRoute(builder: (_) => const SearchScreen()),
                   );
                 },
-                child: const Text(
-                  'عرض الكل',
-                  style: TextStyle(color: AppColors.accentBlue, fontSize: 12),
+                child: Text(
+                  AppStrings.viewAll,
+                  style: const TextStyle(color: AppColors.accentBlue, fontSize: 12),
                 ),
               ),
             ],
@@ -218,7 +215,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
     );
   }
 
-  // Section 2: Biggest Losers (Top Losers)
+  // Section 2: Top Losers
   Widget _buildTopLosersRow() {
     final losers = _stockService.getTopLosers(limit: 5);
 
@@ -230,15 +227,15 @@ class _MarketsScreenState extends State<MarketsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Row(
                   children: [
-                    Icon(Icons.trending_down, color: AppColors.redNegative, size: 20),
-                    SizedBox(width: 6),
+                    const Icon(Icons.trending_down, color: AppColors.redNegative, size: 20),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'أكثر الأسهم انخفاضاً (Biggest Losers)',
-                        style: TextStyle(
+                        AppStrings.topLosers,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: AppColors.redNegative,
@@ -257,9 +254,9 @@ class _MarketsScreenState extends State<MarketsScreen> {
                     MaterialPageRoute(builder: (_) => const SearchScreen()),
                   );
                 },
-                child: const Text(
-                  'عرض الكل',
-                  style: TextStyle(color: AppColors.accentBlue, fontSize: 12),
+                child: Text(
+                  AppStrings.viewAll,
+                  style: const TextStyle(color: AppColors.accentBlue, fontSize: 12),
                 ),
               ),
             ],
@@ -337,7 +334,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
               ],
             ),
             Text(
-              stock.nameAr,
+              AppLanguage.isArabic ? stock.nameAr : stock.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -388,7 +385,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
         children: [
           Expanded(
             child: Text(
-              stock.nameAr,
+              AppLanguage.isArabic ? stock.nameAr : stock.name,
               style: const TextStyle(fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),

@@ -3,6 +3,7 @@ import '../models/portfolio.dart';
 import '../models/stock.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'add_funds_modal.dart';
 
 class PortfolioScreen extends StatefulWidget {
@@ -34,46 +35,51 @@ class _PortfolioScreenState extends State<PortfolioScreen>
   Widget build(BuildContext context) {
     final summary = _stockService.getPortfolioSummary();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.account_balance_wallet, color: AppColors.accentBlue),
-            SizedBox(width: 8),
-            Text('المحفظة الاستثمارية والأرباح'),
-          ],
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppColors.accentBlue,
-          labelColor: AppColors.accentBlue,
-          tabs: const [
-            Tab(text: 'محفظة الجنيه المصري (EGP)'),
-            Tab(text: 'محفظة الدولار (USD)'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildCurrencyPortfolioView(
-            currency: 'EGP',
-            cashBalance: summary.egpCashBalance,
-            buyingPower: summary.egpBuyingPower,
-            holdingsValue: summary.egpHoldingsValue,
-            totalValue: summary.egpTotalValue,
-            holdings: summary.egpHoldings,
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                const Icon(Icons.account_balance_wallet, color: AppColors.accentBlue),
+                const SizedBox(width: 8),
+                Text(AppStrings.portfolioTitle),
+              ],
+            ),
+            bottom: TabBar(
+              controller: _tabController,
+              indicatorColor: AppColors.accentBlue,
+              labelColor: AppColors.accentBlue,
+              tabs: [
+                Tab(text: AppStrings.egpPortfolioTab),
+                Tab(text: AppStrings.usdPortfolioTab),
+              ],
+            ),
           ),
-          _buildCurrencyPortfolioView(
-            currency: 'USD',
-            cashBalance: summary.usdCashBalance,
-            buyingPower: summary.usdBuyingPower,
-            holdingsValue: summary.usdHoldingsValue,
-            totalValue: summary.usdTotalValue,
-            holdings: summary.usdHoldings,
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildCurrencyPortfolioView(
+                currency: 'EGP',
+                cashBalance: summary.egpCashBalance,
+                buyingPower: summary.egpBuyingPower,
+                holdingsValue: summary.egpHoldingsValue,
+                totalValue: summary.egpTotalValue,
+                holdings: summary.egpHoldings,
+              ),
+              _buildCurrencyPortfolioView(
+                currency: 'USD',
+                cashBalance: summary.usdCashBalance,
+                buyingPower: summary.usdBuyingPower,
+                holdingsValue: summary.usdHoldingsValue,
+                totalValue: summary.usdTotalValue,
+                holdings: summary.usdHoldings,
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -108,9 +114,9 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'إجمالي قيمة المحفظة',
-                        style: TextStyle(
+                      Text(
+                        AppStrings.totalValuation,
+                        style: const TextStyle(
                           fontSize: 13,
                         ),
                       ),
@@ -124,7 +130,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                               color: AppColors.accentBlue, width: 0.8),
                         ),
                         child: Text(
-                          'مفصولة بـ $currency',
+                          '$currency',
                           style: const TextStyle(
                               color: AppColors.accentBlue,
                               fontSize: 10,
@@ -151,12 +157,12 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: _buildBalanceItem('القوة الشرائية (Buying Power)',
+                        child: _buildBalanceItem(AppStrings.buyingPower,
                             '${buyingPower.toStringAsFixed(2)} $currency'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: _buildBalanceItem('الرصيد النقدي المتاح',
+                        child: _buildBalanceItem(AppStrings.cashBalance,
                             '${cashBalance.toStringAsFixed(2)} $currency'),
                       ),
                     ],
@@ -174,7 +180,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                       ),
                       icon: const Icon(Icons.add, color: Colors.white, size: 18),
                       label: Text(
-                        'إضافة أموال / إيداع ($currency)',
+                        '${AppStrings.deposit} ($currency)',
                         style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -216,7 +222,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
             children: [
               Expanded(
                 child: Text(
-                  'الأسهم المملوكة ($currency)',
+                  '${AppStrings.ownedHoldings} ($currency)',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -226,8 +232,8 @@ class _PortfolioScreenState extends State<PortfolioScreen>
               ),
               const SizedBox(width: 8),
               Text(
-                'الإجمالي: ${holdingsValue.toStringAsFixed(2)} $currency',
-                style: TextStyle(fontSize: 12),
+                '${AppLanguage.isArabic ? "الإجمالي" : "Total"}: ${holdingsValue.toStringAsFixed(2)} $currency',
+                style: const TextStyle(fontSize: 12),
               ),
             ],
           ),
@@ -235,12 +241,12 @@ class _PortfolioScreenState extends State<PortfolioScreen>
 
           // Holdings List
           if (holdings.isEmpty)
-            const Card(
+            Card(
               child: Padding(
-                padding: EdgeInsets.all(32.0),
+                padding: const EdgeInsets.all(32.0),
                 child: Center(
                   child: Text(
-                    'لا توجد أسهم مملوكة حالياً بهذه العملة',
+                    AppStrings.noHoldings,
                   ),
                 ),
               ),
@@ -294,8 +300,8 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                           children: [
                             Expanded(
                               child: Text(
-                                holding.stockNameAr,
-                                style: TextStyle(fontSize: 12),
+                                AppLanguage.isArabic ? holding.stockNameAr : holding.symbol,
+                                style: const TextStyle(fontSize: 12),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -314,11 +320,12 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('الكمية: ${holding.quantity} سهم',
-                                style: TextStyle(fontSize: 12)),
                             Text(
-                                'متوسط الشراء: ${holding.averageBuyPrice.toStringAsFixed(2)} $currency',
-                                style: TextStyle(fontSize: 12)),
+                                '${AppLanguage.isArabic ? "الكمية" : "Qty"}: ${holding.quantity}',
+                                style: const TextStyle(fontSize: 12)),
+                            Text(
+                                '${AppLanguage.isArabic ? "متوسط الشراء" : "Avg Buy"}: ${holding.averageBuyPrice.toStringAsFixed(2)} $currency',
+                                style: const TextStyle(fontSize: 12)),
                           ],
                         ),
                       ],
@@ -363,10 +370,10 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                         size: 20,
                       ),
                       const SizedBox(width: 6),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'أداء المحفظة والأرباح',
-                          style: TextStyle(
+                          AppStrings.portfolioPerformance,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),

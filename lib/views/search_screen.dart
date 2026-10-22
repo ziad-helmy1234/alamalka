@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/stock.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'stock_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String _selectedCategory = 'الكل';
   bool _onlySharia = false;
 
-  final List<String> _categories = [
+  final List<String> _categoriesAr = [
     'الكل',
     'الأعلى ارتفاعاً',
     'الأكثر انخفاضاً',
@@ -29,6 +30,18 @@ class _SearchScreenState extends State<SearchScreen> {
     'تكنولوجيا الاتصالات',
     'سلع استهلاكية',
     'كيماويات وأسمدة',
+  ];
+
+  final List<String> _categoriesEn = [
+    'All',
+    'Top Gainers',
+    'Top Losers',
+    'Banks & Financials',
+    'Real Estate',
+    'Industrials & Energy',
+    'Telecom & Tech',
+    'Consumer Goods',
+    'Chemicals & Fertilizers',
   ];
 
   Widget? _buildClearButton() {
@@ -46,139 +59,149 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: TextField(
-            controller: _searchController,
-            autofocus: true,
-            onChanged: (val) {
-              setState(() {
-                _searchQuery = val;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: 'ابحث بالاسم أو الرمز (مثال: COMI, TMGH)...',
-              border: InputBorder.none,
-              hintStyle: const TextStyle(fontSize: 14),
-              suffixIcon: _buildClearButton(),
-            ),
-            style: const TextStyle(fontSize: 15),
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Filter Chips Container
-          Container(
-            color: Theme.of(context).cardColor,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              children: [
-                // Sharia Toggle Chip Row
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      FilterChip(
-                        avatar: const Icon(Icons.star, color: AppColors.goldSharia, size: 16),
-                        label: const Text('أسهم الشريعة الإسلامية'),
-                        selected: _onlySharia,
-                        selectedColor: AppColors.goldSharia.withOpacity(0.2),
-                        onSelected: (val) {
-                          setState(() {
-                            _onlySharia = val;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
+    final categories = AppLanguage.isArabic ? _categoriesAr : _categoriesEn;
+    if (!categories.contains(_selectedCategory)) {
+      _selectedCategory = categories.first;
+    }
 
-                // Sector Categories Horizontal Scroll
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: _categories.map((cat) {
-                      final isSelected = _selectedCategory == cat;
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: ChoiceChip(
-                          label: Text(cat),
-                          selected: isSelected,
-                          selectedColor: cat.contains('ارتفاعاً')
-                              ? AppColors.greenPositive.withOpacity(0.3)
-                              : (cat.contains('انخفاضاً')
-                                  ? AppColors.redNegative.withOpacity(0.3)
-                                  : AppColors.accentBlue.withOpacity(0.3)),
-                          onSelected: (val) {
-                            if (val) {
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return Scaffold(
+          appBar: AppBar(
+            titleSpacing: 0,
+            title: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                onChanged: (val) {
+                  setState(() {
+                    _searchQuery = val;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: AppStrings.searchHint,
+                  border: InputBorder.none,
+                  hintStyle: const TextStyle(fontSize: 14),
+                  suffixIcon: _buildClearButton(),
+                ),
+                style: const TextStyle(fontSize: 15),
+              ),
+            ),
+          ),
+          body: Column(
+            children: [
+              // Filter Chips Container
+              Container(
+                color: Theme.of(context).cardColor,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    // Sharia Toggle Chip Row
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          FilterChip(
+                            avatar: const Icon(Icons.star, color: AppColors.goldSharia, size: 16),
+                            label: Text(AppStrings.shariaFilter),
+                            selected: _onlySharia,
+                            selectedColor: AppColors.goldSharia.withOpacity(0.2),
+                            onSelected: (val) {
                               setState(() {
-                                _selectedCategory = cat;
+                                _onlySharia = val;
                               });
-                            }
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Divider(color: Theme.of(context).dividerColor, height: 1),
-
-          // Live Filtered Search Results
-          Expanded(
-            child: StreamBuilder<List<Stock>>(
-              stream: _stockService.stocksStream,
-              initialData: _stockService.allStocks,
-              builder: (context, snapshot) {
-                List<Stock> filteredStocks = [];
-
-                if (_selectedCategory == 'الأعلى ارتفاعاً') {
-                  filteredStocks = _stockService.getTopGainers(limit: 10);
-                } else if (_selectedCategory == 'الأكثر انخفاضاً') {
-                  filteredStocks = _stockService.getTopLosers(limit: 10);
-                } else {
-                  filteredStocks = _stockService.searchStocks(
-                    query: _searchQuery,
-                    selectedSectorAr: _selectedCategory,
-                    onlySharia: _onlySharia,
-                  );
-                }
-
-                if (filteredStocks.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(40.0),
-                    child: Center(
-                      child: Text(
-                        'لا توجد أسهم تطابق نتائج البحث والتصنيف',
-                        style: TextStyle(fontSize: 14),
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }
+                    const SizedBox(height: 6),
 
-                return ListView.separated(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: filteredStocks.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: Theme.of(context).dividerColor, height: 1),
-                  itemBuilder: (context, index) {
-                    final stock = filteredStocks[index];
-                    return _buildSearchResultTile(stock);
+                    // Sector Categories Horizontal Scroll
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: categories.map((cat) {
+                          final isSelected = _selectedCategory == cat;
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: ChoiceChip(
+                              label: Text(cat),
+                              selected: isSelected,
+                              selectedColor: (cat.contains('ارتفاعاً') || cat.contains('Gainers'))
+                                  ? AppColors.greenPositive.withOpacity(0.3)
+                                  : ((cat.contains('انخفاضاً') || cat.contains('Losers'))
+                                      ? AppColors.redNegative.withOpacity(0.3)
+                                      : AppColors.accentBlue.withOpacity(0.3)),
+                              onSelected: (val) {
+                                if (val) {
+                                  setState(() {
+                                    _selectedCategory = cat;
+                                  });
+                                }
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: Theme.of(context).dividerColor, height: 1),
+
+              // Live Filtered Search Results
+              Expanded(
+                child: StreamBuilder<List<Stock>>(
+                  stream: _stockService.stocksStream,
+                  initialData: _stockService.allStocks,
+                  builder: (context, snapshot) {
+                    List<Stock> filteredStocks = [];
+
+                    if (_selectedCategory == 'الأعلى ارتفاعاً' || _selectedCategory == 'Top Gainers') {
+                      filteredStocks = _stockService.getTopGainers(limit: 10);
+                    } else if (_selectedCategory == 'الأكثر انخفاضاً' || _selectedCategory == 'Top Losers') {
+                      filteredStocks = _stockService.getTopLosers(limit: 10);
+                    } else {
+                      filteredStocks = _stockService.searchStocks(
+                        query: _searchQuery,
+                        selectedSectorAr: _selectedCategory,
+                        onlySharia: _onlySharia,
+                      );
+                    }
+
+                    if (filteredStocks.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: Center(
+                          child: Text(
+                            AppStrings.noSearchResults,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: filteredStocks.length,
+                      separatorBuilder: (_, __) =>
+                          Divider(color: Theme.of(context).dividerColor, height: 1),
+                      itemBuilder: (context, index) {
+                        final stock = filteredStocks[index];
+                        return _buildSearchResultTile(stock);
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -223,7 +246,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Expanded(
             child: Text(
-              stock.nameAr,
+              AppLanguage.isArabic ? stock.nameAr : stock.name,
               style: const TextStyle(
                 fontSize: 12,
               ),

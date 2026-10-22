@@ -4,6 +4,7 @@ import '../models/order.dart';
 import '../models/price_alert.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'order_modal.dart';
 
 class StockDetailScreen extends StatefulWidget {
@@ -60,7 +61,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                           color: AppColors.goldSharia, size: 22),
                       const SizedBox(width: 8),
                       Text(
-                        'ضبط تنبيه السعر (${stock.symbol})',
+                        AppLanguage.isArabic
+                            ? 'ضبط تنبيه السعر (${stock.symbol})'
+                            : 'Set Price Alert (${stock.symbol})',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -75,14 +78,18 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 ],
               ),
               Divider(color: Theme.of(context).dividerColor, height: 20),
-              const Text('اختر شَرط التنبيه:',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              Text(
+                AppLanguage.isArabic ? 'اختر شرط التنبيه:' : 'Select Alert Condition:',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: ChoiceChip(
-                      label: const Text('ارتفاع إلى أو أعلى من'),
+                      label: Text(AppLanguage.isArabic
+                          ? 'ارتفاع إلى أو أعلى من'
+                          : 'Rises Above or Equal'),
                       selected: condition == AlertCondition.risesAbove,
                       selectedColor: AppColors.greenPositive.withOpacity(0.25),
                       onSelected: (val) {
@@ -95,7 +102,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ChoiceChip(
-                      label: const Text('انخفاض إلى أو أقل من'),
+                      label: Text(AppLanguage.isArabic
+                          ? 'انخفاض إلى أو أقل من'
+                          : 'Falls Below or Equal'),
                       selected: condition == AlertCondition.fallsBelow,
                       selectedColor: AppColors.redNegative.withOpacity(0.25),
                       onSelected: (val) {
@@ -113,7 +122,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
-                  labelText: 'السعر المستهدف للتنبيه (${stock.currency})',
+                  labelText: AppLanguage.isArabic
+                      ? 'السعر المستهدف للتنبيه (${stock.currency})'
+                      : 'Target Alert Price (${stock.currency})',
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.notifications_active_outlined,
                       color: AppColors.goldSharia),
@@ -146,14 +157,17 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          'تم ضبط تنبيه السعر لـ ${stock.symbol} عند ${targetPrice.toStringAsFixed(2)} ${stock.currency}!',
+                          AppLanguage.isArabic
+                              ? 'تم ضبط تنبيه السعر لـ ${stock.symbol} عند ${targetPrice.toStringAsFixed(2)} ${stock.currency}!'
+                              : 'Price alert set for ${stock.symbol} at ${targetPrice.toStringAsFixed(2)} ${stock.currency}!',
                         ),
                         backgroundColor: AppColors.greenPositive,
                       ),
                     );
                   },
-                  child: const Text('تأكيد ضبط التنبيه',
-                      style: TextStyle(
+                  child: Text(
+                      AppLanguage.isArabic ? 'تأكيد ضبط التنبيه' : 'Confirm Alert',
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.bold)),
@@ -168,196 +182,194 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Stock>>(
-      stream: _stockService.stocksStream,
-      initialData: _stockService.allStocks,
-      builder: (context, snapshot) {
-        final currentStock = snapshot.data?.firstWhere(
-              (s) => s.symbol == widget.stock.symbol,
-              orElse: () => widget.stock,
-            ) ??
-            widget.stock;
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppLanguage.localeNotifier,
+      builder: (context, locale, _) {
+        return StreamBuilder<List<Stock>>(
+          stream: _stockService.stocksStream,
+          initialData: _stockService.allStocks,
+          builder: (context, snapshot) {
+            final currentStock = snapshot.data?.firstWhere(
+                  (s) => s.symbol == widget.stock.symbol,
+                  orElse: () => widget.stock,
+                ) ??
+                widget.stock;
 
-        final color = currentStock.isPositive
-            ? AppColors.greenPositive
-            : AppColors.redNegative;
-        final sign = currentStock.isPositive ? '+' : '';
+            final color = currentStock.isPositive
+                ? AppColors.greenPositive
+                : AppColors.redNegative;
+            final sign = currentStock.isPositive ? '+' : '';
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            return Scaffold(
+              appBar: AppBar(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      currentStock.symbol,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 8),
-                    if (currentStock.isShariaCompliant)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.goldSharia.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                              color: AppColors.goldSharia, width: 0.8),
+                    Row(
+                      children: [
+                        Text(
+                          currentStock.symbol,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.star,
-                                size: 10, color: AppColors.goldSharia),
-                            SizedBox(width: 2),
-                            Text(
-                              'شريعة',
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.goldSharia,
-                                  fontWeight: FontWeight.bold),
+                        const SizedBox(width: 8),
+                        if (currentStock.isShariaCompliant)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.goldSharia.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                  color: AppColors.goldSharia, width: 0.8),
                             ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.star,
+                                    size: 10, color: AppColors.goldSharia),
+                                const SizedBox(width: 2),
+                                Text(
+                                  AppLanguage.isArabic ? 'شريعة' : 'Sharia',
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.goldSharia,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    Text(
+                      AppLanguage.isArabic ? currentStock.nameAr : currentStock.name,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.add_alert_outlined,
+                        color: AppColors.goldSharia),
+                    tooltip: AppLanguage.isArabic ? 'ضبط تنبيه سعر السهم' : 'Set Price Alert',
+                    onPressed: () => _showSetPriceAlertModal(context, currentStock),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      currentStock.isWatchlisted
+                          ? Icons.bookmark
+                          : Icons.bookmark_border,
+                      color: currentStock.isWatchlisted
+                          ? AppColors.goldSharia
+                          : AppColors.accentBlue,
+                    ),
+                    tooltip: currentStock.isWatchlisted
+                        ? (AppLanguage.isArabic ? 'إزالة من المراقبة' : 'Remove Watchlist')
+                        : (AppLanguage.isArabic ? 'إضافة للمراقبة' : 'Add Watchlist'),
+                    onPressed: () {
+                      setState(() {
+                        _stockService.toggleWatchlist(currentStock.symbol);
+                      });
+                    },
+                  ),
+                ],
+              ),
+              body: Column(
+                children: [
+                  // Header Summary Card
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${currentStock.currentPrice.toStringAsFixed(3)} ${currentStock.currency}',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(AppStrings.lastPrice,
+                                style: const TextStyle(fontSize: 11)),
                           ],
                         ),
-                      ),
-                  ],
-                ),
-                Text(
-                  currentStock.nameAr,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.add_alert_outlined,
-                    color: AppColors.goldSharia),
-                tooltip: 'ضبط تنبيه سعر السهم',
-                onPressed: () => _showSetPriceAlertModal(context, currentStock),
-              ),
-              IconButton(
-                icon: Icon(
-                  currentStock.isWatchlisted
-                      ? Icons.bookmark
-                      : Icons.bookmark_border,
-                  color: currentStock.isWatchlisted
-                      ? AppColors.goldSharia
-                      : AppColors.accentBlue,
-                ),
-                tooltip: currentStock.isWatchlisted
-                    ? 'إزالة من قائمة المراقبة'
-                    : 'إضافة لقائمة المراقبة',
-                onPressed: () {
-                  setState(() {
-                    _stockService.toggleWatchlist(currentStock.symbol);
-                  });
-                },
-              ),
-            ],
-          ),
-          body: Column(
-            children: [
-              // Header Summary Card
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${currentStock.currentPrice.toStringAsFixed(3)} ${currentStock.currency}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '$sign${currentStock.change.toStringAsFixed(3)} ($sign${currentStock.percentChange.toStringAsFixed(2)}%)',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: color,
+                              ),
+                            ),
+                            Text(AppStrings.changeValue,
+                                style: const TextStyle(fontSize: 11)),
+                          ],
                         ),
-                        const Text('آخر سعر', style: TextStyle(fontSize: 11)),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '$sign${currentStock.change.toStringAsFixed(3)} ($sign${currentStock.percentChange.toStringAsFixed(2)}%)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: color,
-                          ),
+                  ),
+
+                  // Carousel Page Title Indicator
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      _getPageTitle(_activePageIndex),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: AppColors.accentBlue),
+                    ),
+                  ),
+
+                  // Page Dots Indicator ••••••
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(6, (index) {
+                      return Container(
+                        width: _activePageIndex == index ? 10 : 6,
+                        height: 6,
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        decoration: BoxDecoration(
+                          color: _activePageIndex == index
+                              ? AppColors.accentBlue
+                              : Theme.of(context).dividerColor,
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        const Text('قيمة التغير', style: TextStyle(fontSize: 11)),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Swipeable Carousel PageView
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _activePageIndex = index;
+                        });
+                      },
+                      children: [
+                        _buildPerformanceAndPricePage(currentStock),
+                        _buildVolumeHistogramPage(currentStock),
+                        _buildBasicStatsPage(currentStock),
+                        _buildMarketDepthByPricePage(currentStock),
+                        _buildMarketDepthByOrdersPage(currentStock),
+                        _buildExecutionsPage(currentStock),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-
-              // Carousel Page Title Indicator
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
-                  _getPageTitle(_activePageIndex),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: AppColors.accentBlue),
-                ),
-              ),
-
-              // Page Dots Indicator ••••••
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(6, (index) {
-                  return Container(
-                    width: _activePageIndex == index ? 10 : 6,
-                    height: 6,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                      color: _activePageIndex == index
-                          ? AppColors.accentBlue
-                          : Theme.of(context).dividerColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 8),
-
-              // Swipeable Carousel PageView
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _activePageIndex = index;
-                    });
-                  },
-                  children: [
-                    // Page 1: الرسم البياني لأداء سعر السهم
-                    _buildPerformanceAndPricePage(currentStock),
-
-                    // Page 2: رسم أحجام التداول والسيولة المستقل (Volume Histogram Alone)
-                    _buildVolumeHistogramPage(currentStock),
-
-                    // Page 3: تفاصيل جدول بيانات السيولة ورأس المال
-                    _buildBasicStatsPage(currentStock),
-
-                    // Page 4: السوق بالسعر
-                    _buildMarketDepthByPricePage(currentStock),
-
-                    // Page 5: السوق بالأوامر
-                    _buildMarketDepthByOrdersPage(currentStock),
-
-                    // Page 6: إجمالي التنفيذات
-                    _buildExecutionsPage(currentStock),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: _buildActionBottomBar(context, currentStock),
+              bottomNavigationBar:
+                  _buildActionBottomBar(context, currentStock),
+            );
+          },
         );
       },
     );
@@ -366,17 +378,17 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
   String _getPageTitle(int index) {
     switch (index) {
       case 0:
-        return 'أداء السهم والرسم البياني';
+        return AppStrings.stockPerformanceTitle;
       case 1:
-        return 'أحجام التداول والسيولة';
+        return AppStrings.volumeSpikesTitle;
       case 2:
-        return 'بيانات السوق الأساسية';
+        return AppStrings.basicStatsTitle;
       case 3:
-        return 'السوق بالسعر';
+        return AppStrings.depthByPriceTitle;
       case 4:
-        return 'السوق بالأوامر';
+        return AppStrings.depthByOrdersTitle;
       case 5:
-        return 'إجمالي التنفيذات';
+        return AppStrings.executionsStreamTitle;
       default:
         return '';
     }
@@ -404,13 +416,13 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.show_chart,
+                          const Icon(Icons.show_chart,
                               color: AppColors.accentBlue, size: 20),
-                          SizedBox(width: 6),
-                          Text('الرسم البياني لأداء سعر السهم',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 6),
+                          Text(AppStrings.stockPerformanceTitle,
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                       Text(_getTimeframeLabel(_selectedTimeframe),
@@ -488,18 +500,18 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('ملخص أداء وتداول اليوم',
-                      style: TextStyle(
+                  Text(AppLanguage.isArabic ? 'ملخص أداء وتداول اليوم' : 'Daily Performance Summary',
+                      style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 14)),
                   Divider(color: Theme.of(context).dividerColor, height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStatCol('سعر الفتح',
+                      _buildStatCol(AppStrings.openPrice,
                           '${stock.openPrice.toStringAsFixed(3)} ${stock.currency}'),
-                      _buildStatCol('الإغلاق السابق',
+                      _buildStatCol(AppStrings.previousClose,
                           '${stock.previousClose.toStringAsFixed(3)} ${stock.currency}'),
-                      _buildStatCol('مضاعف الربحية P/E',
+                      _buildStatCol(AppStrings.peRatio,
                           stock.peRatio.toStringAsFixed(2)),
                     ],
                   ),
@@ -507,11 +519,11 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStatCol('أعلى سعر اليوم',
+                      _buildStatCol(AppStrings.dayHigh,
                           '${stock.dayHigh.toStringAsFixed(3)} ${stock.currency}'),
-                      _buildStatCol('أدنى سعر اليوم',
+                      _buildStatCol(AppStrings.dayLow,
                           '${stock.dayLow.toStringAsFixed(3)} ${stock.currency}'),
-                      _buildStatCol('حجم التداول اليوم',
+                      _buildStatCol(AppStrings.volume,
                           _formatNum(stock.volume.toInt())),
                     ],
                   ),
@@ -524,7 +536,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 2: Dedicated Volume Histogram Chart Alone (Page 2)
+  // PAGE 2: Dedicated Volume Histogram Chart Alone
   Widget _buildVolumeHistogramPage(Stock stock) {
     final history = _getFilteredHistory(stock, _selectedTimeframe);
 
@@ -536,16 +548,16 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.bar_chart_rounded,
+                  const Icon(Icons.bar_chart_rounded,
                       color: AppColors.goldSharia, size: 22),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'الرسم البياني لأحجام التداول والسيولة (Volume Spikes)',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      AppStrings.volumeSpikesTitle,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -584,8 +596,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatCol('إجمالي كمية التداول', '${_formatNum(stock.volume.toInt())} سهم'),
-                  _buildStatCol('قيمة السيولة المتداولة', '${_formatNum(stock.totalTradeValue.toInt())} ${stock.currency}'),
+                  _buildStatCol(AppStrings.volume, '${_formatNum(stock.volume.toInt())}'),
+                  _buildStatCol(AppStrings.totalTradeValue, '${_formatNum(stock.totalTradeValue.toInt())} ${stock.currency}'),
                 ],
               ),
             ],
@@ -595,7 +607,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 3: Basic Stats Table (Images 5 & 6)
+  // PAGE 3: Basic Stats Table
   Widget _buildBasicStatsPage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -604,25 +616,25 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              _buildTableRow('حجم أفضل طلب',
+              _buildTableRow(AppLanguage.isArabic ? 'حجم أفضل طلب' : 'Best Bid Volume',
                   '${stock.bidsByPrice.first.quantity} × ${stock.bidsByPrice.first.price.toStringAsFixed(3)}'),
-              _buildTableRow('حجم أفضل عرض',
+              _buildTableRow(AppLanguage.isArabic ? 'حجم أفضل عرض' : 'Best Ask Volume',
                   '${stock.asksByPrice.first.quantity} × ${stock.asksByPrice.first.price.toStringAsFixed(3)}'),
-              _buildTableRow('إجمالي الطلبات', _formatNum(stock.totalBidsVolume)),
-              _buildTableRow('إجمالي العروض', _formatNum(stock.totalAsksVolume)),
-              _buildTableRow('كمية التداول', '${_formatNum(stock.volume.toInt())} سهم'),
-              _buildTableRow('عدد العمليات', '${_formatNum(stock.numberOfTrades)} عملية'),
-              _buildTableRow('قيمة التداول', '${_formatNum(stock.totalTradeValue.toInt())} ${stock.currency}'),
-              _buildTableRow('سعر الفتح - سعر الإغلاق',
+              _buildTableRow(AppLanguage.isArabic ? 'إجمالي الطلبات' : 'Total Bids Volume', _formatNum(stock.totalBidsVolume)),
+              _buildTableRow(AppLanguage.isArabic ? 'إجمالي العروض' : 'Total Asks Volume', _formatNum(stock.totalAsksVolume)),
+              _buildTableRow(AppStrings.volume, '${_formatNum(stock.volume.toInt())}'),
+              _buildTableRow(AppStrings.numberOfTrades, _formatNum(stock.numberOfTrades)),
+              _buildTableRow(AppStrings.totalTradeValue, '${_formatNum(stock.totalTradeValue.toInt())} ${stock.currency}'),
+              _buildTableRow(AppLanguage.isArabic ? 'سعر الفتح - الإغلاق' : 'Open - Close Price',
                   '${stock.openPrice.toStringAsFixed(3)} - ${stock.previousClose.toStringAsFixed(3)}'),
-              _buildTableRow('أقل سعر - أعلى سعر',
+              _buildTableRow(AppLanguage.isArabic ? 'أقل - أعلى سعر' : 'Low - High Price',
                   '${stock.dayLow.toStringAsFixed(3)} - ${stock.dayHigh.toStringAsFixed(3)}'),
-              _buildTableRow('الحد الأدنى - الحد الأقصى للجلسة',
+              _buildTableRow(AppLanguage.isArabic ? 'حدود الجلسة (الحد الأدنى - الأقصى)' : 'Session Limits',
                   '${stock.circuitBreakerMin.toStringAsFixed(3)} - ${stock.circuitBreakerMax.toStringAsFixed(3)}'),
-              _buildTableRow('52 أسبوع (الأدنى - الأقصى)',
+              _buildTableRow(AppLanguage.isArabic ? 'نطاق 52 أسبوعاً' : '52-Week Range',
                   '${stock.week52Min.toStringAsFixed(3)} - ${stock.week52Max.toStringAsFixed(3)}'),
-              _buildTableRow('رأس المال السوقي', '${_formatNum(stock.marketCap.toInt())} ${stock.currency}'),
-              _buildTableRow('مضاعف الربحية (P/E Ratio)', stock.peRatio.toStringAsFixed(2)),
+              _buildTableRow(AppStrings.marketCap, '${_formatNum(stock.marketCap.toInt())} ${stock.currency}'),
+              _buildTableRow(AppStrings.peRatio, stock.peRatio.toStringAsFixed(2)),
             ],
           ),
         ),
@@ -630,7 +642,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 4: Market Depth By Price (Image 3)
+  // PAGE 4: Market Depth By Price
   Widget _buildMarketDepthByPricePage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -642,15 +654,15 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('طلب (Bids)',
-                          style: TextStyle(
+                      Text(AppStrings.bidsHeader,
+                          style: const TextStyle(
                               color: AppColors.greenPositive,
                               fontWeight: FontWeight.bold)),
-                      Text('عرض (Asks)',
-                          style: TextStyle(
+                      Text(AppStrings.asksHeader,
+                          style: const TextStyle(
                               color: AppColors.redNegative,
                               fontWeight: FontWeight.bold)),
                     ],
@@ -702,33 +714,33 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       border: Border(
                           bottom: BorderSide(color: Theme.of(context).dividerColor)),
                     ),
-                    children: const [
-                      Padding(
+                    children: [
+                      const Padding(
                           padding: EdgeInsets.symmetric(vertical: 6),
                           child: Text('#',
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('الكمية',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'الكمية' : 'Qty',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('السعر',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'السعر' : 'Price',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('السعر',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'السعر' : 'Price',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('الكمية',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'الكمية' : 'Qty',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
-                      Padding(
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                      const Padding(
                           padding: EdgeInsets.symmetric(vertical: 6),
                           child: Text('#',
                               textAlign: TextAlign.center,
@@ -785,7 +797,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 5: Market Depth By Orders (Image 2)
+  // PAGE 5: Market Depth By Orders
   Widget _buildMarketDepthByOrdersPage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -794,16 +806,16 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('طلب (Bids Order Book)',
-                      style: TextStyle(
+                  Text(AppStrings.bidsOrderBook,
+                      style: const TextStyle(
                           color: AppColors.greenPositive,
                           fontWeight: FontWeight.bold,
                           fontSize: 13)),
-                  Text('عرض (Asks Order Book)',
-                      style: TextStyle(
+                  Text(AppStrings.asksOrderBook,
+                      style: const TextStyle(
                           color: AppColors.redNegative,
                           fontWeight: FontWeight.bold,
                           fontSize: 13)),
@@ -819,27 +831,27 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 },
                 children: [
                   TableRow(
-                    children: const [
+                    children: [
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('الكمية',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'الكمية' : 'Qty',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('السعر',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'السعر' : 'Price',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('السعر',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'السعر' : 'Price',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('الكمية',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'الكمية' : 'Qty',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                     ],
                   ),
                   for (int i = 0; i < stock.bidsByOrder.length; i++)
@@ -882,7 +894,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     );
   }
 
-  // PAGE 6: Executions Stream (Image 1)
+  // PAGE 6: Executions Stream
   Widget _buildExecutionsPage(Stock stock) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -892,8 +904,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('أجمالي التنفيذات (Time & Sales Stream)',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(AppStrings.executionsStreamTitle,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               Divider(color: Theme.of(context).dividerColor, height: 16),
               Table(
                 columnWidths: const {
@@ -908,27 +920,27 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       border: Border(
                           bottom: BorderSide(color: Theme.of(context).dividerColor)),
                     ),
-                    children: const [
+                    children: [
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('العدد',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'العدد' : 'Count',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('القيمة',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'القيمة' : 'Value',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('الكمية',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'الكمية' : 'Qty',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                       Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text('السعر',
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(AppLanguage.isArabic ? 'السعر' : 'Price',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
                     ],
                   ),
                   for (final ex in stock.recentExecutions)
@@ -1001,15 +1013,15 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
   String _getTimeframeLabel(String tf) {
     switch (tf) {
       case '1D':
-        return 'يوم واحد (1 Day)';
+        return AppLanguage.isArabic ? 'يوم واحد' : '1 Day';
       case '1W':
-        return 'أسبوع (1 Week)';
+        return AppLanguage.isArabic ? 'أسبوع واحد' : '1 Week';
       case '1M':
-        return 'شهر واحد (1 Month)';
+        return AppLanguage.isArabic ? 'شهر واحد' : '1 Month';
       case '1Y':
-        return 'سنة (1 Year)';
+        return AppLanguage.isArabic ? 'سنة واحدة' : '1 Year';
       case '5Y':
-        return '5 سنوات (5 Years)';
+        return AppLanguage.isArabic ? '5 سنوات' : '5 Years';
       default:
         return '';
     }
@@ -1099,8 +1111,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               onPressed: () {
                 _showOrderBottomSheet(context, stock, OrderSide.buy);
               },
-              child: const Text('شراء',
-                  style: TextStyle(
+              child: Text(AppStrings.buy,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
@@ -1118,8 +1130,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               onPressed: () {
                 _showOrderBottomSheet(context, stock, OrderSide.sell);
               },
-              child: const Text('بيع',
-                  style: TextStyle(
+              child: Text(AppStrings.sell,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
