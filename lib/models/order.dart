@@ -11,6 +11,7 @@ class Order {
   final OrderSide side;
   final double targetPrice;
   final int quantity;
+  final int? minimumBlockQuantity; // شرطي - الحد الأدنى لكمية الدفعة
   final OrderValidity validity;
   final DateTime? validUntilDate;
   final String custodianBank; // أمين الحفظ
@@ -26,6 +27,7 @@ class Order {
     required this.side,
     required this.targetPrice,
     required this.quantity,
+    this.minimumBlockQuantity,
     required this.validity,
     this.validUntilDate,
     this.custodianBank = 'البنك التجاري الدولي (CIB)',
@@ -34,5 +36,6 @@ class Order {
     this.status = OrderStatus.pending,
   });
 
+  bool get isConditional => minimumBlockQuantity != null && minimumBlockQuantity! > 0;
   double get totalValue => targetPrice * quantity;
 }

@@ -25,7 +25,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             Text('إلغاء الأمر'),
           ],
         ),
-        content: Text('هل أنت أؤكد إلغاء الأمر ${order.id} لشراء/بيع سهم ${order.symbol}؟ سيتم إعادة القوة الشرائية إلى محفظتك.'),
+        content: Text('هل أنت مؤكد من إلغاء الأمر ${order.id} لشراء/بيع سهم ${order.symbol}؟ سيتم إعادة القوة الشرائية المتبقية إلى محفظتك.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -116,7 +116,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        isBuy ? 'امر شراء' : 'امر بيع',
+                        isBuy ? 'أمر شراء' : 'أمر بيع',
                         style: TextStyle(
                           color: sideColor,
                           fontWeight: FontWeight.bold,
@@ -145,7 +145,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
             _buildDetailRow('اسم السهم والرمز', '${order.stockName} (${order.symbol})'),
             _buildDetailRow('نوع السعر', order.type == OrderType.limit ? 'سعر حد (Limit)' : 'سعر السوق (Market)'),
             _buildDetailRow('السعر المستهدف', '${order.targetPrice.toStringAsFixed(2)} ${order.currency}'),
-            _buildDetailRow('الكمية المطلوب تنفيذها', '${order.quantity} سهم'),
+            _buildDetailRow('الكمية الإجمالية', '${order.quantity} سهم'),
+            if (order.isConditional)
+              _buildDetailRow('شرط التنفيذ بالدفعات', 'دفعة لا تقل عن ${order.minimumBlockQuantity} سهم'),
             _buildDetailRow('إجمالي قيمة الأمر', '${order.totalValue.toStringAsFixed(2)} ${order.currency}'),
             _buildDetailRow('أمين الحفظ (Custodian)', order.custodianBank),
             _buildDetailRow('صلاحية الأمر', validityText),
@@ -315,9 +317,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            order.stockName,
-                            style: const TextStyle(fontSize: 13),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                order.stockName,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              if (order.isConditional)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentBlue.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'شرطي: دفعة ${order.minimumBlockQuantity} سهم',
+                                    style: const TextStyle(
+                                        color: AppColors.accentBlue,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 4),
                           Row(

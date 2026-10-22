@@ -26,6 +26,7 @@ class _OrderModalState extends State<OrderModal> {
   OrderType _orderType = OrderType.limit;
   OrderValidity _validity = OrderValidity.gtc;
   DateTime? _selectedGtdDate;
+  bool _isConditional = false;
 
   final List<String> _custodianBanks = [
     'البنك التجاري الدولي (CIB Custody)',
@@ -39,6 +40,7 @@ class _OrderModalState extends State<OrderModal> {
   late String _selectedCustodianBank;
   late TextEditingController _quantityController;
   late TextEditingController _priceController;
+  late TextEditingController _minBlockController;
 
   @override
   void initState() {
@@ -54,14 +56,20 @@ class _OrderModalState extends State<OrderModal> {
           : _custodianBanks.first;
       _quantityController = TextEditingController(text: o.quantity.toString());
       _priceController = TextEditingController(text: o.targetPrice.toStringAsFixed(2));
+      _isConditional = o.isConditional;
+      _minBlockController = TextEditingController(
+        text: o.minimumBlockQuantity?.toString() ?? '1000',
+      );
     } else {
       _side = widget.initialSide;
       _selectedCustodianBank = _custodianBanks.first;
-      _quantityController = TextEditingController(text: '100');
+      _quantityController = TextEditingController(text: '2000');
       _priceController = TextEditingController(
         text: widget.stock.currentPrice.toStringAsFixed(2),
       );
       _selectedGtdDate = DateTime.now().add(const Duration(days: 14));
+      _isConditional = false;
+      _minBlockController = TextEditingController(text: '1000');
     }
   }
 
@@ -105,6 +113,10 @@ class _OrderModalState extends State<OrderModal> {
 
     final hasEnoughPower =
         _side == OrderSide.sell || effectiveRequiredPower <= buyingPower;
+
+    final minBlockVal = _isConditional
+        ? (int.tryParse(_minBlockController.text) ?? 1000)
+        : null;
 
     return Container(
       constraints: BoxConstraints(
@@ -299,7 +311,67 @@ class _OrderModalState extends State<OrderModal> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 3. Order Duration / Validity (Day, GTC, GTD - صالح حتى)
+                  // 3. Conditional Order - Minimum Fill Quantity / Block Size (أمر شرطي)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text(
+                      'أمر شرطي (تنفيذ بالدفعات - Block Size)',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text(
+                      'يشترط عدم تنفيذ أي صفقات جزئية تقل عن الحد الأدنى لكمية الدفعة.',
+                      style: TextStyle(fontSize: 11),
+                    ),
+                    value: _isConditional,
+                    activeThumbColor: AppColors.accentBlue,
+                    onChanged: (val) {
+                      setState(() {
+                        _isConditional = val;
+                      });
+                    },
+                  ),
+                  if (_isConditional) ...[
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: _minBlockController,
+                      keyboardType: TextInputType.number,
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        labelText: 'الحد الأدنى لكمية الدفعة (مثال: 1000 سهم)',
+                        hintText: 'مثال: 1000',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.filter_alt_outlined,
+                            color: AppColors.accentBlue),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentBlue.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline,
+                              color: AppColors.accentBlue, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'تنبيه البورصة: لن يمنحك النظام صفقات صغيرة أقل من ${minBlockVal ?? 1000} سهم. يُنفذ الأمر فقط بهذه الدفعة كحد أدنى أو بالكامل ($quantity سهم).',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.accentBlue,
+                                  height: 1.3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+
+                  // 4. Order Duration / Validity (Day, GTC, GTD - صالح حتى)
                   const Text('صلاحية الأمر (Order Duration)',
                       style: TextStyle(
                           fontSize: 13,
@@ -453,6 +525,7 @@ class _OrderModalState extends State<OrderModal> {
                                   side: _side,
                                   targetPrice: price,
                                   quantity: quantity,
+                                  minimumBlockQuantity: minBlockVal,
                                   validity: _validity,
                                   validUntilDate: _validity == OrderValidity.gtd
                                       ? _selectedGtdDate
@@ -487,6 +560,7 @@ class _OrderModalState extends State<OrderModal> {
                                   side: _side,
                                   targetPrice: price,
                                   quantity: quantity,
+                                  minimumBlockQuantity: minBlockVal,
                                   validity: _validity,
                                   validUntilDate: _validity == OrderValidity.gtd
                                       ? _selectedGtdDate
@@ -503,7 +577,7 @@ class _OrderModalState extends State<OrderModal> {
                                   SnackBar(
                                     content: Text(
                                       success
-                                          ? 'تم إرسال الأمر بنجاح بنك الحفظ: $_selectedCustodianBank!'
+                                          ? 'تم إرسال الأمر بنجاح ${minBlockVal != null ? "(شرطي: دفعة $minBlockVal سهم)" : ""}!'
                                           : 'عذراً، القوة الشرائية غير كافية لتنفيذ الأمر.',
                                     ),
                                     backgroundColor: success
