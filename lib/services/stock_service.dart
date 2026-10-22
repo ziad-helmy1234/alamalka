@@ -386,7 +386,7 @@ class StockService {
     }
   }
 
-  // Top Gainers & Losers
+  // Top Gainers, Losers & Most Active Movers
   List<Stock> getTopGainers({int limit = 5}) {
     final list = List<Stock>.from(_allStocks);
     list.sort((a, b) => b.percentChange.compareTo(a.percentChange));
@@ -396,6 +396,12 @@ class StockService {
   List<Stock> getTopLosers({int limit = 5}) {
     final list = List<Stock>.from(_allStocks);
     list.sort((a, b) => a.percentChange.compareTo(b.percentChange));
+    return list.take(limit).toList();
+  }
+
+  List<Stock> getMostActiveMovers({int limit = 5}) {
+    final list = List<Stock>.from(_allStocks);
+    list.sort((a, b) => b.volume.compareTo(a.volume));
     return list.take(limit).toList();
   }
 

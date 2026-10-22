@@ -67,6 +67,8 @@ class _MarketsScreenState extends State<MarketsScreen> {
                   _buildTopGainersRow(),
                   const SizedBox(height: 12),
                   _buildTopLosersRow(),
+                  const SizedBox(height: 12),
+                  _buildMostActiveMoversRow(),
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -269,6 +271,67 @@ class _MarketsScreenState extends State<MarketsScreen> {
           child: Row(
             children: losers
                 .map((stock) => _buildHighlightCard(stock, isGainer: false))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Section 3: Most Active Movers (Highest Trading Volume regardless of price direction)
+  Widget _buildMostActiveMoversRow() {
+    final activeMovers = _stockService.getMostActiveMovers(limit: 5);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(Icons.bolt, color: AppColors.accentBlue, size: 20),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        AppStrings.mostActiveMovers,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: AppColors.accentBlue,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SearchScreen()),
+                  );
+                },
+                child: Text(
+                  AppStrings.viewAll,
+                  style: const TextStyle(color: AppColors.accentBlue, fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: activeMovers
+                .map((stock) => _buildHighlightCard(stock, isGainer: stock.isPositive))
                 .toList(),
           ),
         ),

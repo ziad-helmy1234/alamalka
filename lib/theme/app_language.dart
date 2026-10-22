@@ -32,6 +32,7 @@ class AppStrings {
   static String get newsTooltip => AppLanguage.isArabic ? 'الأخبار والأحداث' : 'News & Events';
   static String get topGainers => AppLanguage.isArabic ? 'أعلى الأسهم ارتفاعاً' : 'Top Gainers';
   static String get topLosers => AppLanguage.isArabic ? 'أكثر الأسهم انخفاضاً' : 'Top Losers';
+  static String get mostActiveMovers => AppLanguage.isArabic ? 'الأسهم الأكثر نشاطاً وتداولاً' : 'Most Active Movers';
   static String get viewAll => AppLanguage.isArabic ? 'عرض الكل' : 'View All';
   static String get allListedStocks => AppLanguage.isArabic ? 'جميع الأسهم المقيدة' : 'All Listed Stocks';
 
