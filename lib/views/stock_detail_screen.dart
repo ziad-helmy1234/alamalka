@@ -541,8 +541,14 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   Icon(Icons.bar_chart_rounded,
                       color: AppColors.goldSharia, size: 22),
                   SizedBox(width: 8),
-                  Text('الرسم البياني لأحجام التداول والسيولة (Volume Spikes)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  Expanded(
+                    child: Text(
+                      'الرسم البياني لأحجام التداول والسيولة (Volume Spikes)',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               Divider(color: Theme.of(context).dividerColor, height: 20),
