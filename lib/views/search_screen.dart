@@ -24,6 +24,7 @@ class _SearchScreenState extends State<SearchScreen> {
     'الكل',
     'الأعلى ارتفاعاً',
     'الأكثر انخفاضاً',
+    'الأكثر نشاطاً وتداولاً',
     'بنوك وخدمات مالية',
     'عقارات',
     'صناعة وطاقة',
@@ -36,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
     'All',
     'Top Gainers',
     'Top Losers',
+    'Most Active Movers',
     'Banks & Financials',
     'Real Estate',
     'Industrials & Energy',
@@ -162,9 +164,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     List<Stock> filteredStocks = [];
 
                     if (_selectedCategory == 'الأعلى ارتفاعاً' || _selectedCategory == 'Top Gainers') {
-                      filteredStocks = _stockService.getTopGainers(limit: 10);
+                      filteredStocks = _stockService.getTopGainers(limit: 15);
                     } else if (_selectedCategory == 'الأكثر انخفاضاً' || _selectedCategory == 'Top Losers') {
-                      filteredStocks = _stockService.getTopLosers(limit: 10);
+                      filteredStocks = _stockService.getTopLosers(limit: 15);
+                    } else if (_selectedCategory == 'الأكثر نشاطاً وتداولاً' || _selectedCategory == 'Most Active Movers') {
+                      filteredStocks = _stockService.getMostActiveMovers(limit: 15);
                     } else {
                       filteredStocks = _stockService.searchStocks(
                         query: _searchQuery,
