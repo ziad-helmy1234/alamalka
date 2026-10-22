@@ -6,6 +6,7 @@ import '../models/portfolio.dart';
 import '../models/ipo.dart';
 import '../models/news_event.dart';
 import '../models/user_profile.dart';
+import '../models/price_alert.dart';
 
 class StockService {
   static final StockService _instance = StockService._internal();
@@ -35,6 +36,21 @@ class StockService {
 
   List<Stock> get allStocks => List.unmodifiable(_allStocks);
   List<Order> get orders => List.unmodifiable(_orders);
+
+  List<PriceAlert> _priceAlerts = [];
+  List<PriceAlert> get priceAlerts => List.unmodifiable(_priceAlerts);
+
+  void addPriceAlert(PriceAlert alert) {
+    _priceAlerts.insert(0, alert);
+  }
+
+  void deletePriceAlert(String alertId) {
+    _priceAlerts.removeWhere((a) => a.id == alertId);
+  }
+
+  List<PriceAlert> getPriceAlertsForStock(String symbol) {
+    return _priceAlerts.where((a) => a.symbol == symbol).toList();
+  }
 
   void _initMockData() {
     final now = DateTime.now();
@@ -288,7 +304,50 @@ class StockService {
           currency: stock.currency,
           isWatchlisted: stock.isWatchlisted,
           history: updatedHistory,
+          openPrice: stock.openPrice,
+          marketCap: stock.marketCap,
+          peRatio: stock.peRatio,
+          totalBidsVolume: stock.totalBidsVolume,
+          totalAsksVolume: stock.totalAsksVolume,
+          numberOfTrades: stock.numberOfTrades + 1,
+          totalTradeValue: stock.totalTradeValue + (newPrice * 100),
+          circuitBreakerMin: stock.circuitBreakerMin,
+          circuitBreakerMax: stock.circuitBreakerMax,
+          week52Min: stock.week52Min,
+          week52Max: stock.week52Max,
+          bidsByPrice: stock.bidsByPrice,
+          asksByPrice: stock.asksByPrice,
+          bidsByOrder: stock.bidsByOrder,
+          asksByOrder: stock.asksByOrder,
+          recentExecutions: stock.recentExecutions,
         );
+
+        // Check price alerts
+        for (int j = 0; j < _priceAlerts.length; j++) {
+          final alert = _priceAlerts[j];
+          if (alert.symbol == stock.symbol && !alert.isTriggered) {
+            bool isTriggered = false;
+            if (alert.condition == AlertCondition.risesAbove && newPrice >= alert.targetPrice) {
+              isTriggered = true;
+            } else if (alert.condition == AlertCondition.fallsBelow && newPrice <= alert.targetPrice) {
+              isTriggered = true;
+            }
+
+            if (isTriggered) {
+              alert.isTriggered = true;
+              _inboxMessages.insert(
+                0,
+                InboxMessage(
+                  id: 'MSG-ALERT-${DateTime.now().millisecondsSinceEpoch}',
+                  titleAr: 'تنبيه سعر: ${stock.symbol}',
+                  bodyAr: 'وصل سعر سهم ${stock.nameAr} إلى ${newPrice.toStringAsFixed(2)} ${stock.currency} (${alert.conditionTextAr} ${alert.targetPrice.toStringAsFixed(2)})!',
+                  timestamp: DateTime.now(),
+                  isRead: false,
+                ),
+              );
+            }
+          }
+        }
       }
       _stocksStreamController.add(_allStocks);
     });

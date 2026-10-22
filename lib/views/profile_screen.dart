@@ -422,13 +422,215 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onChanged: (val) {},
               ),
               ListTile(
+                title: const Text('تغيير كلمة المرور (Change Password)'),
+                subtitle: const Text('إدخال كلمة المرور القديمة وتأكيد الجديدة'),
+                leading: const Icon(Icons.key_outlined, color: AppColors.accentBlue),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                onTap: () {
+                  _showChangePasswordModal(context);
+                },
+              ),
+              ListTile(
                 title: const Text('تغيير رمز PIN للتداول'),
-                trailing: const Icon(Icons.lock_outline),
+                leading: const Icon(Icons.lock_outline, color: AppColors.accentBlue),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                 onTap: () {},
               ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _showChangePasswordModal(BuildContext context) {
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool obscureOld = true;
+    bool obscureNew = true;
+    bool obscureConfirm = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => ValueListenableBuilder<ThemeMode>(
+          valueListenable: AppTheme.themeNotifier,
+          builder: (context, mode, _) {
+            final isDark = mode == ThemeMode.dark;
+            final cardBg = isDark ? AppColors.cardDark : AppColors.cardLight;
+            final onSurface =
+                isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+
+            return Material(
+              color: cardBg,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                ),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.lock_reset,
+                                  color: AppColors.accentBlue, size: 22),
+                              const SizedBox(width: 8),
+                              Text(
+                                'تغيير كلمة المرور (Change Password)',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close, color: onSurface),
+                            onPressed: () => Navigator.pop(ctx),
+                          ),
+                        ],
+                      ),
+                      Divider(
+                          color: isDark
+                              ? AppColors.borderDark
+                              : AppColors.borderLight),
+                      const SizedBox(height: 12),
+
+                      // 1. Old Password
+                      TextFormField(
+                        controller: oldPasswordController,
+                        obscureText: obscureOld,
+                        style: TextStyle(color: onSurface),
+                        decoration: InputDecoration(
+                          labelText: 'كلمة المرور القديمة (Old Password)',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(obscureOld
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                            onPressed: () =>
+                                setState(() => obscureOld = !obscureOld),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'يرجى إدخال كلمة المرور القديمة';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+
+                      // 2. New Password
+                      TextFormField(
+                        controller: newPasswordController,
+                        obscureText: obscureNew,
+                        style: TextStyle(color: onSurface),
+                        decoration: InputDecoration(
+                          labelText: 'كلمة المرور الجديدة (New Password)',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.lock_reset),
+                          suffixIcon: IconButton(
+                            icon: Icon(obscureNew
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                            onPressed: () =>
+                                setState(() => obscureNew = !obscureNew),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().length < 6) {
+                            return 'كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف/أرقام';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+
+                      // 3. Confirm Password
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        obscureText: obscureConfirm,
+                        style: TextStyle(color: onSurface),
+                        decoration: InputDecoration(
+                          labelText:
+                              'تأكيد كلمة المرور الجديدة (Confirm New Password)',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.check_circle_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(obscureConfirm
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                            onPressed: () => setState(
+                                () => obscureConfirm = !obscureConfirm),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val != newPasswordController.text) {
+                            return 'كلمة المرور الجديدة غير متطابقة مع التأكيد';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentBlue,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('تم تغيير كلمة المرور بنجاح!'),
+                                  backgroundColor: AppColors.greenPositive,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'حفظ كلمة المرور الجديدة',
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
