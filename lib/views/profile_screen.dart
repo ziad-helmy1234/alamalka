@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'add_funds_modal.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -386,50 +387,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showSettingsSheet(BuildContext context) {
     _showCustomBottomSheet(
       context,
-      'الإعدادات والأمان (Settings)',
+      AppStrings.settingsTitle,
       ValueListenableBuilder<ThemeMode>(
         valueListenable: AppTheme.themeNotifier,
         builder: (context, mode, _) {
           final isDark = mode == ThemeMode.dark;
-          return Column(
-            children: [
-              SwitchListTile(
-                title: const Text('الوضع الفاتح (Light Mode)'),
-                subtitle: const Text('التبديل بين الثيم الداكن والفاتح للتطبيق'),
-                secondary: Icon(
-                  isDark ? Icons.dark_mode : Icons.light_mode,
-                  color: isDark ? Colors.amber : AppColors.accentBlue,
-                ),
-                value: !isDark,
-                activeColor: AppColors.accentBlue,
-                onChanged: (val) {
-                  AppTheme.toggleTheme();
-                },
-              ),
-              Divider(color: isDark ? AppColors.borderDark : AppColors.borderLight),
-              SwitchListTile(
-                title: const Text('التسجيل بالبصمة / Face ID'),
-                subtitle: const Text('تسجيل الدخول السريع والآمن للبيانات المالية'),
-                value: true,
-                activeColor: AppColors.accentBlue,
-                onChanged: (val) {},
-              ),
-              SwitchListTile(
-                title: const Text('إشعارات تنفيذ الأوامر اللحظية'),
-                subtitle: const Text('تنبيهات أسعار وتأكيد تنفيذ أوامر البيع والشراء'),
-                value: true,
-                activeColor: AppColors.accentBlue,
-                onChanged: (val) {},
-              ),
-              ListTile(
-                title: const Text('تغيير كلمة المرور (Change Password)'),
-                subtitle: const Text('إدخال كلمة المرور القديمة وتأكيد الجديدة'),
-                leading: const Icon(Icons.key_outlined, color: AppColors.accentBlue),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                onTap: () {
-                  _showChangePasswordModal(context);
-                },
-              ),
+          return ValueListenableBuilder<Locale>(
+            valueListenable: AppLanguage.localeNotifier,
+            builder: (context, locale, _) {
+              final isEn = locale.languageCode == 'en';
+              return Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(AppStrings.appLanguageLabel),
+                    subtitle: Text(AppStrings.appLanguageSubtitle),
+                    secondary: const Icon(
+                      Icons.language,
+                      color: AppColors.accentBlue,
+                    ),
+                    value: isEn,
+                    activeThumbColor: AppColors.accentBlue,
+                    onChanged: (val) {
+                      AppLanguage.toggleLanguage();
+                    },
+                  ),
+                  Divider(
+                      color: isDark
+                          ? AppColors.borderDark
+                          : AppColors.borderLight),
+                  SwitchListTile(
+                    title: Text(AppStrings.lightModeLabel),
+                    subtitle: Text(AppStrings.lightModeSubtitle),
+                    secondary: Icon(
+                      isDark ? Icons.dark_mode : Icons.light_mode,
+                      color: isDark ? Colors.amber : AppColors.accentBlue,
+                    ),
+                    value: !isDark,
+                    activeThumbColor: AppColors.accentBlue,
+                    onChanged: (val) {
+                      AppTheme.toggleTheme();
+                    },
+                  ),
+                  Divider(
+                      color: isDark
+                          ? AppColors.borderDark
+                          : AppColors.borderLight),
+                  SwitchListTile(
+                    title: Text(AppStrings.biometricsLabel),
+                    subtitle: const Text(
+                        'تسجيل الدخول السريع والآمن للبيانات المالية'),
+                    value: true,
+                    activeThumbColor: AppColors.accentBlue,
+                    onChanged: (val) {},
+                  ),
+                  SwitchListTile(
+                    title: Text(AppStrings.notificationsLabel),
+                    subtitle: const Text(
+                        'تنبيهات أسعار وتأكيد تنفيذ أوامر البيع والشراء'),
+                    value: true,
+                    activeThumbColor: AppColors.accentBlue,
+                    onChanged: (val) {},
+                  ),
+                  ListTile(
+                    title: Text(AppStrings.changePasswordLabel),
+                    subtitle:
+                        const Text('إدخال كلمة المرور القديمة وتأكيد الجديدة'),
+                    leading: const Icon(Icons.key_outlined,
+                        color: AppColors.accentBlue),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                    onTap: () {
+                      _showChangePasswordModal(context);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
               ListTile(
                 title: const Text('تغيير رمز PIN للتداول'),
                 leading: const Icon(Icons.lock_outline, color: AppColors.accentBlue),

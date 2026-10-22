@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_language.dart';
 import 'markets_screen.dart';
 import 'watchlist_screen.dart';
 import 'ipo_ripple_screen.dart';
@@ -33,48 +34,54 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+      bottomNavigationBar: ValueListenableBuilder<Locale>(
+        valueListenable: AppLanguage.localeNotifier,
+        builder: (context, _, __) {
+          return BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            type: BottomNavigationBarType.fixed,
+            selectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+            unselectedLabelStyle: const TextStyle(fontSize: 9),
+            items: [
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.candlestick_chart_outlined),
+                activeIcon: const Icon(Icons.candlestick_chart),
+                label: AppStrings.marketsTab,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.bookmark_border),
+                activeIcon: const Icon(Icons.bookmark),
+                label: AppStrings.watchlistTab,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.auto_awesome_outlined),
+                activeIcon: const Icon(Icons.auto_awesome, color: AppColors.goldSharia),
+                label: AppStrings.iposTab,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.account_balance_wallet_outlined),
+                activeIcon: const Icon(Icons.account_balance_wallet),
+                label: AppStrings.portfolioTab,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.assignment_outlined),
+                activeIcon: const Icon(Icons.assignment),
+                label: AppStrings.ordersTab,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person_outline),
+                activeIcon: const Icon(Icons.person),
+                label: AppStrings.accountTab,
+              ),
+            ],
+          );
         },
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-        unselectedLabelStyle: const TextStyle(fontSize: 9),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.candlestick_chart_outlined),
-            activeIcon: Icon(Icons.candlestick_chart),
-            label: 'الأسواق',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_border),
-            activeIcon: Icon(Icons.bookmark),
-            label: 'المراقبة',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.auto_awesome_outlined),
-            activeIcon: Icon(Icons.auto_awesome, color: AppColors.goldSharia),
-            label: 'الطروحات',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            activeIcon: Icon(Icons.account_balance_wallet),
-            label: 'المحفظة',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
-            activeIcon: Icon(Icons.assignment),
-            label: 'الأوامر',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'الحساب',
-          ),
-        ],
       ),
     );
   }
