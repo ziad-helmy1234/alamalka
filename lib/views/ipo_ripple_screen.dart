@@ -243,7 +243,9 @@ class IPORippleScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    ipo.marketImpactSummaryAr,
+                    AppLanguage.isArabic
+                        ? ipo.marketImpactSummaryAr
+                        : ipo.marketImpactSummaryEn,
                     style: const TextStyle(
                         fontSize: 13,
                         height: 1.4),
@@ -303,7 +305,7 @@ class IPORippleScreen extends StatelessWidget {
                     child: Text(
                       AppLanguage.isArabic
                           ? 'توصية المستشار الاستراتيجي: ${ipo.actionableInsightAr}'
-                          : 'Strategic Recommendation: ${ipo.actionableInsightAr}',
+                          : 'Strategic Recommendation: ${ipo.actionableInsightEn}',
                       style: const TextStyle(
                         color: AppColors.greenPositive,
                         fontWeight: FontWeight.w600,
