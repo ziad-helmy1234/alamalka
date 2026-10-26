@@ -16,8 +16,9 @@ class StockService {
     _startLivePriceTicker();
   }
 
-  final _random = Random();
   final _stocksStreamController = StreamController<List<Stock>>.broadcast();
+  final Random _random = Random();
+
   Stream<List<Stock>> get stocksStream => _stocksStreamController.stream;
 
   List<Stock> _allStocks = [];
@@ -63,6 +64,7 @@ class StockService {
         points.add(PricePoint(
           time: now.subtract(Duration(days: i)),
           price: double.parse(current.toStringAsFixed(2)),
+          volume: 100000 + (_random.nextDouble() * 500000),
         ));
       }
       return points;
@@ -197,6 +199,134 @@ class StockService {
         isWatchlisted: false,
         history: generateHistory(68.90),
       ),
+      Stock(
+        symbol: 'EPRS',
+        name: 'Ezz Steel',
+        nameAr: 'حديد عز',
+        sector: 'Industrial',
+        sectorAr: 'صناعة وطاقة',
+        currentPrice: 92.30,
+        previousClose: 89.50,
+        dayHigh: 93.80,
+        dayLow: 89.00,
+        volume: 6200000,
+        isShariaCompliant: false,
+        currency: 'EGP',
+        isWatchlisted: true,
+        history: generateHistory(92.30),
+      ),
+      Stock(
+        symbol: 'EFIH',
+        name: 'e-Finance Investments',
+        nameAr: 'إي فاينانس للاستثمارات',
+        sector: 'Technology',
+        sectorAr: 'تكنولوجيا الاتصالات',
+        currentPrice: 24.15,
+        previousClose: 23.80,
+        dayHigh: 24.50,
+        dayLow: 23.70,
+        volume: 4800000,
+        isShariaCompliant: true,
+        currency: 'EGP',
+        isWatchlisted: false,
+        history: generateHistory(24.15),
+      ),
+      Stock(
+        symbol: 'PHDC',
+        name: 'Palm Hills Developments',
+        nameAr: 'بالم هيلز للتعمير',
+        sector: 'Real Estate',
+        sectorAr: 'عقارات',
+        currentPrice: 4.85,
+        previousClose: 5.02,
+        dayHigh: 5.10,
+        dayLow: 4.80,
+        volume: 12400000,
+        isShariaCompliant: true,
+        currency: 'EGP',
+        isWatchlisted: false,
+        history: generateHistory(4.85),
+      ),
+      Stock(
+        symbol: 'ETEL',
+        name: 'Telecom Egypt',
+        nameAr: 'المصرية للاتصالات',
+        sector: 'Telecom',
+        sectorAr: 'تكنولوجيا الاتصالات',
+        currentPrice: 38.60,
+        previousClose: 37.90,
+        dayHigh: 39.20,
+        dayLow: 37.80,
+        volume: 3900000,
+        isShariaCompliant: true,
+        currency: 'EGP',
+        isWatchlisted: true,
+        history: generateHistory(38.60),
+      ),
+      Stock(
+        symbol: 'MFPC',
+        name: 'Misr Fertilizers MOPCO',
+        nameAr: 'مصر لإنتاج السماد موبكو',
+        sector: 'Chemicals',
+        sectorAr: 'كيماويات وأسمدة',
+        currentPrice: 48.20,
+        previousClose: 49.10,
+        dayHigh: 49.80,
+        dayLow: 47.90,
+        volume: 2700000,
+        isShariaCompliant: true,
+        currency: 'EGP',
+        isWatchlisted: false,
+        history: generateHistory(48.20),
+      ),
+      Stock(
+        symbol: 'EKHO',
+        name: 'Egypt Kuwait Holding',
+        nameAr: 'القابضة الكويتية',
+        sector: 'Investment',
+        sectorAr: 'خدمات مالية غير مصرفية',
+        currentPrice: 1.15,
+        previousClose: 1.12,
+        dayHigh: 1.18,
+        dayLow: 1.11,
+        volume: 1950000,
+        isShariaCompliant: true,
+        currency: 'USD',
+        isWatchlisted: false,
+        history: generateHistory(1.15),
+      ),
+      Stock(
+        symbol: 'AMOC',
+        name: 'Alexandria Mineral Oils',
+        nameAr: 'أموك للزيوت المعدنية',
+        sector: 'Energy',
+        sectorAr: 'صناعة وطاقة',
+        currentPrice: 9.40,
+        previousClose: 9.65,
+        dayHigh: 9.75,
+        dayLow: 9.35,
+        volume: 8300000,
+        isShariaCompliant: false,
+        currency: 'EGP',
+        isWatchlisted: false,
+        history: generateHistory(9.40),
+      ),
+      Stock(
+        symbol: 'JUFO',
+        name: 'Juhayna Food Industries',
+        nameAr: 'جهينة للصناعات الغذائية',
+        sector: 'Consumer Goods',
+        sectorAr: 'سلع استهلاكية',
+        currentPrice: 19.80,
+        previousClose: 19.20,
+        dayHigh: 20.10,
+        dayLow: 19.10,
+        volume: 3100000,
+        isShariaCompliant: true,
+        currency: 'EGP',
+        isWatchlisted: false,
+        history: generateHistory(19.80),
+      ),
     ];
 
     // Initialize mock portfolio holdings
@@ -221,11 +351,20 @@ class StockService {
       ),
       PortfolioHolding(
         symbol: 'FWRY',
-        stockName: 'Fawry',
-        stockNameAr: 'فوري',
+        stockName: 'Fawry for Banking & Tech',
+        stockNameAr: 'فوري تكنولوجيا البنوك',
         quantity: 5000,
         averageBuyPrice: 6.90,
         currentPrice: 7.85,
+        currency: 'EGP',
+      ),
+      PortfolioHolding(
+        symbol: 'EPRS',
+        stockName: 'Ezz Steel',
+        stockNameAr: 'حديد عز',
+        quantity: 600,
+        averageBuyPrice: 85.00,
+        currentPrice: 92.30,
         currency: 'EGP',
       ),
     ];
@@ -235,9 +374,18 @@ class StockService {
         symbol: 'ORAS',
         stockName: 'Orascom Construction',
         stockNameAr: 'أوراسكوم للإنشاءات',
-        quantity: 40,
+        quantity: 50,
         averageBuyPrice: 220.00,
         currentPrice: 245.00,
+        currency: 'USD',
+      ),
+      PortfolioHolding(
+        symbol: 'EKHO',
+        stockName: 'Egypt Kuwait Holding',
+        stockNameAr: 'القابضة الكويتية',
+        quantity: 2000,
+        averageBuyPrice: 1.05,
+        currentPrice: 1.15,
         currency: 'USD',
       ),
     ];
@@ -272,6 +420,98 @@ class StockService {
         timestamp: DateTime.now().subtract(const Duration(days: 1)),
         status: OrderStatus.executed,
       ),
+      Order(
+        id: 'ORD-103',
+        symbol: 'EPRS',
+        stockName: 'حديد عز',
+        type: OrderType.limit,
+        side: OrderSide.buy,
+        targetPrice: 91.00,
+        quantity: 300,
+        validity: OrderValidity.day,
+        custodianBank: 'بنك مصر (Banque Misr)',
+        currency: 'EGP',
+        timestamp: DateTime.now().subtract(const Duration(hours: 4)),
+        status: OrderStatus.executed,
+      ),
+    ];
+
+    _marketNews = [
+      NewsItem(
+        id: 'NEWS-1',
+        titleAr: 'البنك التجاري الدولي (COMI) يحقق أرباحاً قياسية بزيادة 38% في النصف الأول',
+        summaryAr: 'أعلن البنك التجاري الدولي عن نتائجه المالية التي أظهرت صافي أرباح قدره 14.2 مليار جنيه بفضل نمو صافي دخل العائد.',
+        categoryAr: 'نتائج أعمال',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
+        relatedSymbol: 'COMI',
+        source: 'إفصاحات البورصة المصرية',
+        isUrgent: true,
+      ),
+      NewsItem(
+        id: 'NEWS-2',
+        titleAr: 'البنك المركزي المصري يبقي على أسعار الفائدة الرئيسية دون تغيير في اجتماعه اليوم',
+        summaryAr: 'قررت لجنة السياسة النقدية الإبقاء على سعر عائد الإيداع والإقراض لليلة واحدة عند مستوياته الحالية لدعم استقرار الأسعار.',
+        categoryAr: 'اقتصاد كلي',
+        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+        source: 'البنك المركزي المصري',
+        isUrgent: true,
+      ),
+      NewsItem(
+        id: 'NEWS-3',
+        titleAr: 'مجموعة طلعت مصطفى (TMGH) تطلق مشروعاً فندقياً ضخماً باستثمارات تتجاوز 1.5 مليار دولار',
+        summaryAr: 'وقعت المجموعة اتفاقية تطوير مشروع سياحي وفندقي فاخر على الساحل الشمالي بالتعاون مع مجموعات عالمية.',
+        categoryAr: 'توسع واستثمار',
+        timestamp: DateTime.now().subtract(const Duration(hours: 5)),
+        relatedSymbol: 'TMGH',
+        source: 'بيان إعلامي للشركة',
+      ),
+      NewsItem(
+        id: 'NEWS-4',
+        titleAr: 'شركة فوري (FWRY) تتوسع في خدمات التمويل متناهي الصغر وتفتح 50 فرعاً جديداً',
+        summaryAr: 'أعلنت فوري لتكنولوجيا البنوك عن استراتيجيتها للتوسع التمويلي في المحافظات مع زيادة حجم العمليات الرقمية بنسبة 45%.',
+        categoryAr: 'نتائج أعمال',
+        timestamp: DateTime.now().subtract(const Duration(hours: 9)),
+        relatedSymbol: 'FWRY',
+        source: 'العربية بزنس',
+      ),
+    ];
+
+    _economicEvents = [
+      MarketEvent(
+        id: 'EVT-1',
+        titleAr: 'صرف توزيعات الأرباح النقدية لمساهمي سهم أبو قير للسماد (ABUK)',
+        date: now.add(const Duration(days: 3)),
+        eventType: 'dividend',
+        eventTypeAr: 'توزيعات أرباح',
+        relatedSymbol: 'ABUK',
+        detailsAr: 'توزيع نقدي بواقع 4.50 جنيه لكل سهم لحاملي السهم حتى نهاية جلسة اليوم.',
+      ),
+      MarketEvent(
+        id: 'EVT-2',
+        titleAr: 'بداية التداول على أسهم زيادة رأس مال شركة فوري (FWRY)',
+        date: now.add(const Duration(days: 7)),
+        eventType: 'capital',
+        eventTypeAr: 'زيادة رأس مال',
+        relatedSymbol: 'FWRY',
+        detailsAr: 'إدراج أسهم زيادة رأس المال المجانية بواقع سهم مجاني لكل 5 أسهم أصلي.',
+      ),
+      MarketEvent(
+        id: 'EVT-3',
+        titleAr: 'اجتماع لجنة السياسة النقدية بالبنك المركزي لتحديد أسعار الفائدة',
+        date: now.add(const Duration(days: 14)),
+        eventType: 'macro',
+        eventTypeAr: 'قرارات الفائدة',
+        detailsAr: 'الاجتماع الدوري الخامس للجنة السياسة النقدية لعام 2024.',
+      ),
+      MarketEvent(
+        id: 'EVT-4',
+        titleAr: 'الإعلان عن أرباح الربع الثالث لشركة السويدي إليكتريك',
+        date: now.add(const Duration(days: 18)),
+        eventType: 'earnings',
+        eventTypeAr: 'نتائج أعمال',
+        relatedSymbol: 'SWDY',
+        detailsAr: 'إفصاح القوائم المالية المستقلة والمجمعة للربع الثالث.',
+      ),
     ];
   }
 
@@ -286,7 +526,7 @@ class StockService {
         final newLow = min(stock.dayLow, newPrice);
 
         final updatedHistory = List<PricePoint>.from(stock.history);
-        updatedHistory.add(PricePoint(time: DateTime.now(), price: newPrice));
+        updatedHistory.add(PricePoint(time: DateTime.now(), price: newPrice, volume: 100000 + (_random.nextDouble() * 500000)));
         if (updatedHistory.length > 50) updatedHistory.removeAt(0);
 
         _allStocks[i] = Stock(
@@ -369,7 +609,9 @@ class StockService {
 
       final matchesSector = selectedSectorAr == null ||
           selectedSectorAr == 'الكل' ||
-          s.sectorAr == selectedSectorAr;
+          selectedSectorAr == 'All' ||
+          s.sectorAr == selectedSectorAr ||
+          s.sector == selectedSectorAr;
 
       final matchesSharia = !onlySharia || s.isShariaCompliant;
 
@@ -386,15 +628,15 @@ class StockService {
     }
   }
 
-  // Top Gainers, Losers & Most Active Movers
+  // Top Gainers, Losers & Most Active Movers (Strictly filtered)
   List<Stock> getTopGainers({int limit = 5}) {
-    final list = List<Stock>.from(_allStocks);
+    final list = _allStocks.where((s) => s.percentChange > 0).toList();
     list.sort((a, b) => b.percentChange.compareTo(a.percentChange));
     return list.take(limit).toList();
   }
 
   List<Stock> getTopLosers({int limit = 5}) {
-    final list = List<Stock>.from(_allStocks);
+    final list = _allStocks.where((s) => s.percentChange < 0).toList();
     list.sort((a, b) => a.percentChange.compareTo(b.percentChange));
     return list.take(limit).toList();
   }
@@ -406,101 +648,16 @@ class StockService {
   }
 
   // News & Events
-  List<NewsItem> getMarketNews({String? symbolFilter}) {
-    final news = [
-      NewsItem(
-        id: 'NEWS-1',
-        titleAr: 'البنك التجاري الدولي (COMI) يحقق أرباحاً قياسية بزيادة 38% في النصف الأول',
-        summaryAr: 'أعلن البنك التجاري الدولي عن نتائجه المالية التي أظهرت صافي أرباح قدره 14.2 مليار جنيه بفضل نمو صافي دخل العائد.',
-        categoryAr: 'نتائج أعمال',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
-        relatedSymbol: 'COMI',
-        source: 'إفصاحات البورصة المصرية',
-        isUrgent: true,
-      ),
-      NewsItem(
-        id: 'NEWS-2',
-        titleAr: 'البنك المركزي المصري يبقي على أسعار الفائدة الرئيسية دون تغيير في اجتماعه اليوم',
-        summaryAr: 'قررت لجنة السياسة النقدية الإبقاء على سعر عائد الإيداع والإقراض لليلة واحدة عند مستوياته الحالية لدعم استقرار الأسعار.',
-        categoryAr: 'اقتصاد كلي',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        source: 'البنك المركزي المصري',
-        isUrgent: true,
-      ),
-      NewsItem(
-        id: 'NEWS-3',
-        titleAr: 'مجموعة طلعت مصطفى (TMGH) تطلق مشروعاً فندقياً ضخماً باستثمارات تتجاوز 1.5 مليار دولار',
-        summaryAr: 'وقعت المجموعة اتفاقية تطوير مشروع سياحي وفندقي فاخر على الساحل الشمالي بالتعاون مع مجموعات عالمية.',
-        categoryAr: 'توسع واستثمار',
-        timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-        relatedSymbol: 'TMGH',
-        source: 'بيان إعلامي للشركة',
-      ),
-      NewsItem(
-        id: 'NEWS-4',
-        titleAr: 'شركة فوري (FWRY) تتوسع في خدمات التمويل متناهي الصغر وتفتح 50 فرعاً جديداً',
-        summaryAr: 'أعلنت فوري لتكنولوجيا البنوك عن استراتيجيتها للتوسع التمويلي في المحافظات مع زيادة حجم العمليات الرقمية بنسبة 45%.',
-        categoryAr: 'نتائج أعمال',
-        timestamp: DateTime.now().subtract(const Duration(hours: 9)),
-        relatedSymbol: 'FWRY',
-        source: 'العربية بزنس',
-      ),
-      NewsItem(
-        id: 'NEWS-5',
-        titleAr: 'السويدى إليكتريك (SWDY) تفوز بعقد إنشاء محطة طاقة شمسية بقيمة 320 مليون دولار',
-        summaryAr: 'وقع تحالف السويدي إليكتريك اتفاقية إنشاء وتوريد محطة توليد طاقة متجددة في المنطقة الاقتصادية لقناة السويس.',
-        categoryAr: 'عقود وترسيات',
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        relatedSymbol: 'SWDY',
-        source: 'إفصاح البورصة',
-      ),
-    ];
+  List<NewsItem> _marketNews = [];
+  List<MarketEvent> _economicEvents = [];
 
-    if (symbolFilter != null && symbolFilter.isNotEmpty) {
-      return news.where((n) => n.relatedSymbol == symbolFilter).toList();
-    }
-    return news;
+  List<NewsItem> getMarketNews({String? symbolFilter}) {
+    if (symbolFilter == null) return _marketNews;
+    return _marketNews.where((n) => n.relatedSymbol == symbolFilter).toList();
   }
 
   List<MarketEvent> getEconomicEvents() {
-    final now = DateTime.now();
-    return [
-      MarketEvent(
-        id: 'EVT-1',
-        titleAr: 'توزيع كوبون نقدي بقيمة 2.50 جنيه لكل سهم',
-        date: now.add(const Duration(days: 3)),
-        eventType: 'dividend',
-        eventTypeAr: 'توزيعات أرباح',
-        relatedSymbol: 'COMI',
-        detailsAr: 'تاريخ استحقاق الكوبون النقدي للمساهمين المقيدين بجدول البورصة.',
-      ),
-      MarketEvent(
-        id: 'EVT-2',
-        titleAr: 'اجتماع الجمعية العمومية العادية لشركة طلعت مصطفى',
-        date: now.add(const Duration(days: 6)),
-        eventType: 'agm',
-        eventTypeAr: 'جمعية عمومية',
-        relatedSymbol: 'TMGH',
-        detailsAr: 'اعتماد نتائج الأعمال السنوية والموافقة على خطة التوزيعات الاستثمارية.',
-      ),
-      MarketEvent(
-        id: 'EVT-3',
-        titleAr: 'اجتماع لجنة السياسة النقدية بالبنك المركزي لتحديد أسعار الفائدة',
-        date: now.add(const Duration(days: 14)),
-        eventType: 'macro',
-        eventTypeAr: 'قرارات الفائدة',
-        detailsAr: 'الاجتماع الدوري الخامس للجنة السياسة النقدية لعام 2024.',
-      ),
-      MarketEvent(
-        id: 'EVT-4',
-        titleAr: 'الإعلان عن أرباح الربع الثالث لشركة السويدي إليكتريك',
-        date: now.add(const Duration(days: 18)),
-        eventType: 'earnings',
-        eventTypeAr: 'نتائج أعمال',
-        relatedSymbol: 'SWDY',
-        detailsAr: 'إفصاح القوائم المالية المستقلة والمجمعة للربع الثالث.',
-      ),
-    ];
+    return _economicEvents;
   }
 
   // Portfolio & Wallet
