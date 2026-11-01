@@ -1,0 +1,334 @@
+// Amalka EGX trading backend — PostgreSQL schema.
+// Money is stored as NUMERIC (never float). Prices: 4 dp, balances: 4 dp.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TRADER
+  ADMIN
+}
+
+enum Currency {
+  EGP
+  USD
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+}
+
+enum OrderValidity {
+  DAY
+  GTC
+  GTD
+}
+
+/// EGX execution conditions.
+/// REGULAR: normal order, partial fills allowed, rests until filled/expired.
+/// MF:  Minimum Fill — must fill at least minimum_block_quantity on entry or it is cancelled.
+/// FOK: Fill-or-Kill — fill the whole quantity immediately or cancel.
+/// FAK: Fill-and-Kill — fill what is available immediately, cancel the remainder.
+/// AON: All-or-None — may rest, but only ever executes the whole remaining quantity at once.
+enum ExecutionRule {
+  REGULAR
+  MF
+  FOK
+  FAK
+  AON
+}
+
+enum OrderStatus {
+  PENDING
+  PARTIALLY_FILLED
+  EXECUTED
+  CANCELLED
+}
+
+enum TransferType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentProvider {
+  PAYMOB
+  PAYTABS
+  MANUAL
+}
+
+enum AlertCondition {
+  RISES_ABOVE
+  FALLS_BELOW
+}
+
+enum LedgerEntryType {
+  DEPOSIT
+  WITHDRAWAL_HOLD
+  WITHDRAWAL_RELEASE
+  WITHDRAWAL_SETTLED
+  BUY_SETTLEMENT
+  SELL_SETTLEMENT
+  FEE
+}
+
+model User {
+  id                String    @id @default(uuid()) @db.Uuid
+  email             String    @unique @db.VarChar(254)
+  passwordHash      String    @map("password_hash")
+  fullNameAr        String    @map("full_name_ar") @db.VarChar(120)
+  fullNameEn        String    @map("full_name_en") @db.VarChar(120)
+  /// e.g. EGX-892104 (clients may display it as #EGX-892104)
+  unifiedId         String    @unique @default(dbgenerated("('EGX-'::text || (nextval('unified_id_seq'::regclass))::text)")) @map("unified_id") @db.VarChar(32)
+  role              Role      @default(TRADER)
+  passwordChangedAt DateTime? @map("password_changed_at") @db.Timestamptz(3)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  portfolios    Portfolio[]
+  orders        Order[]
+  transfers     Transfer[]
+  priceAlerts   PriceAlert[]
+  refreshTokens RefreshToken[]
+  trades        Trade[]
+
+  @@map("users")
+}
+
+model Stock {
+  symbol            String   @id @db.VarChar(16)
+  nameAr            String   @map("name_ar") @db.VarChar(160)
+  nameEn            String   @map("name_en") @db.VarChar(160)
+  sectorAr          String   @map("sector_ar") @db.VarChar(120)
+  sectorEn          String   @map("sector_en") @db.VarChar(120)
+  currentPrice      Decimal  @map("current_price") @db.Decimal(18, 4)
+  previousClose     Decimal  @map("previous_close") @db.Decimal(18, 4)
+  openPrice         Decimal  @map("open_price") @db.Decimal(18, 4)
+  dayHigh           Decimal  @map("day_high") @db.Decimal(18, 4)
+  dayLow            Decimal  @map("day_low") @db.Decimal(18, 4)
+  volume            BigInt   @default(0)
+  isShariaCompliant Boolean  @default(false) @map("is_sharia_compliant")
+  currency          Currency @default(EGP)
+  peRatio           Decimal? @map("pe_ratio") @db.Decimal(12, 4)
+  week52High        Decimal? @map("week_52_high") @db.Decimal(18, 4)
+  week52Low         Decimal? @map("week_52_low") @db.Decimal(18, 4)
+  isActive          Boolean  @default(true) @map("is_active")
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  holdings    Holding[]
+  orders      Order[]
+  priceAlerts PriceAlert[]
+  trades      Trade[]
+
+  @@index([sectorEn])
+  @@map("stocks")
+}
+
+model Portfolio {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  currency    Currency
+  /// Settled cash owned by the user.
+  cashBalance Decimal  @default(0) @map("cash_balance") @db.Decimal(20, 4)
+  /// Cash available for new orders/withdrawals = cash_balance - locked amounts.
+  buyingPower Decimal  @default(0) @map("buying_power") @db.Decimal(20, 4)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings      Holding[]
+  orders        Order[]
+  transfers     Transfer[]
+  ledgerEntries LedgerEntry[]
+
+  @@unique([userId, currency])
+  @@map("portfolios")
+}
+
+model Holding {
+  id               String  @id @default(uuid()) @db.Uuid
+  portfolioId      String  @map("portfolio_id") @db.Uuid
+  symbol           String  @db.VarChar(16)
+  quantity         Int
+  /// Shares reserved by pending SELL orders (cannot be sold twice).
+  reservedQuantity Int     @default(0) @map("reserved_quantity")
+  averageBuyPrice  Decimal @map("average_buy_price") @db.Decimal(18, 4)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  stock     Stock     @relation(fields: [symbol], references: [symbol])
+
+  @@unique([portfolioId, symbol])
+  @@map("holdings")
+}
+
+model Order {
+  id                   String        @id @default(dbgenerated("('ORD-'::text || (nextval('order_id_seq'::regclass))::text)")) @db.VarChar(32)
+  userId               String        @map("user_id") @db.Uuid
+  portfolioId          String        @map("portfolio_id") @db.Uuid
+  symbol               String        @db.VarChar(16)
+  side                 OrderSide
+  type                 OrderType
+  /// Limit price. NULL for MARKET orders.
+  targetPrice          Decimal?      @map("target_price") @db.Decimal(18, 4)
+  quantity             Int
+  filledQuantity       Int           @default(0) @map("filled_quantity")
+  /// Conditional order (تنفيذ بالدفعات): minimum block per execution / MF minimum.
+  minimumBlockQuantity Int?          @map("minimum_block_quantity")
+  validity             OrderValidity @default(DAY)
+  validUntilDate       DateTime?     @map("valid_until_date") @db.Date
+  executionRule        ExecutionRule @default(REGULAR) @map("execution_rule")
+  custodianBank        String        @map("custodian_bank") @db.VarChar(80)
+  currency             Currency
+  status               OrderStatus   @default(PENDING)
+  /// Buying power currently reserved by this (BUY) order, incl. estimated fees.
+  lockedAmount         Decimal       @default(0) @map("locked_amount") @db.Decimal(20, 4)
+  averageFillPrice     Decimal?      @map("average_fill_price") @db.Decimal(18, 4)
+  cancelReason         String?       @map("cancel_reason") @db.VarChar(200)
+  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user      User      @relation(fields: [userId], references: [id])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  stock     Stock     @relation(fields: [symbol], references: [symbol])
+  trades    Trade[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([symbol, status])
+  @@index([status, validity])
+  @@map("orders")
+}
+
+model Trade {
+  id         String    @id @default(uuid()) @db.Uuid
+  orderId    String    @map("order_id") @db.VarChar(32)
+  userId     String    @map("user_id") @db.Uuid
+  symbol     String    @db.VarChar(16)
+  side       OrderSide
+  quantity   Int
+  price      Decimal   @db.Decimal(18, 4)
+  fee        Decimal   @default(0) @db.Decimal(20, 4)
+  executedAt DateTime  @default(now()) @map("executed_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  stock Stock @relation(fields: [symbol], references: [symbol])
+
+  @@index([symbol, executedAt(sort: Desc)])
+  @@index([userId, executedAt(sort: Desc)])
+  @@map("trades")
+}
+
+model Transfer {
+  id            String           @id @default(dbgenerated("('TRF-'::text || (nextval('transfer_id_seq'::regclass))::text)")) @db.VarChar(32)
+  userId        String           @map("user_id") @db.Uuid
+  portfolioId   String           @map("portfolio_id") @db.Uuid
+  amount        Decimal          @db.Decimal(20, 4)
+  currency      Currency
+  type          TransferType
+  /// e.g. InstaPay, Bank Transfer, Card
+  method        String           @db.VarChar(40)
+  /// Withdrawal destination (IBAN / InstaPay address), masked in API responses.
+  destination   String?          @db.VarChar(64)
+  provider      PaymentProvider?
+  /// Provider-side order/transaction reference (unique => webhook idempotency).
+  providerRef   String?          @unique @map("provider_ref") @db.VarChar(128)
+  status        TransferStatus   @default(PENDING)
+  failureReason String?          @map("failure_reason") @db.VarChar(200)
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user      User      @relation(fields: [userId], references: [id])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("transfers")
+}
+
+/// Immutable audit trail of every cash movement.
+model LedgerEntry {
+  id               String          @id @default(uuid()) @db.Uuid
+  portfolioId      String          @map("portfolio_id") @db.Uuid
+  type             LedgerEntryType
+  /// Signed change to cash_balance (0 for pure holds/releases).
+  cashDelta        Decimal         @map("cash_delta") @db.Decimal(20, 4)
+  /// Signed change to buying_power.
+  buyingPowerDelta Decimal         @map("buying_power_delta") @db.Decimal(20, 4)
+  cashBalanceAfter Decimal         @map("cash_balance_after") @db.Decimal(20, 4)
+  refId            String          @map("ref_id") @db.VarChar(64)
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, createdAt(sort: Desc)])
+  @@map("ledger_entries")
+}
+
+model PriceAlert {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  symbol      String         @db.VarChar(16)
+  targetPrice Decimal        @map("target_price") @db.Decimal(18, 4)
+  condition   AlertCondition
+  isTriggered Boolean        @default(false) @map("is_triggered")
+  triggeredAt DateTime?      @map("triggered_at") @db.Timestamptz(3)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stock Stock @relation(fields: [symbol], references: [symbol])
+
+  @@index([symbol, isTriggered])
+  @@index([userId])
+  @@map("price_alerts")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  /// SHA-256 of the opaque token; the raw token is never stored.
+  tokenHash  String    @unique @map("token_hash") @db.Char(64)
+  /// All tokens from one login share a family; reuse of a rotated token revokes the family.
+  familyId   String    @map("family_id") @db.Uuid
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz(3)
+  rotatedAt  DateTime? @map("rotated_at") @db.Timestamptz(3)
+  userAgent  String?   @map("user_agent") @db.VarChar(255)
+  ip         String?   @db.VarChar(64)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+/// Raw, verified payment-gateway callbacks (audit + replay protection).
+model PaymentEvent {
+  id          String          @id @default(uuid()) @db.Uuid
+  provider    PaymentProvider
+  /// Provider transaction id; unique per provider so a replayed webhook is a no-op.
+  eventKey    String          @map("event_key") @db.VarChar(128)
+  transferId  String?         @map("transfer_id") @db.VarChar(32)
+  payload     Json
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([provider, eventKey])
+  @@map("payment_events")
+}

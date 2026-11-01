@@ -1,0 +1,25 @@
+// Loaded before any test module: point the app at an isolated test database / Redis DB.
+process.env.NODE_ENV = 'test';
+process.env.LOG_LEVEL = process.env.TEST_LOG_LEVEL ?? 'silent';
+process.env.DATABASE_URL =
+  process.env.TEST_DATABASE_URL ?? 'postgresql://amalka:amalka_dev_password@localhost:5433/amalka_test?schema=public';
+process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://localhost:6380/15';
+process.env.JWT_ACCESS_SECRET = 'test-only-jwt-secret-0123456789-abcdefghijklmnop';
+process.env.JWT_ACCESS_TTL = '15m';
+process.env.BCRYPT_ROUNDS = '10';
+process.env.RATE_LIMIT_GLOBAL_PER_MIN = '100000';
+process.env.RATE_LIMIT_AUTH_PER_MIN = '100000';
+process.env.RATE_LIMIT_ORDERS_PER_MIN = '100000';
+process.env.TRADING_FEE_RATE = '0.002';
+process.env.MARKET_BUY_BUFFER = '0.05';
+process.env.PRICE_BAND_PCT = '0.2';
+process.env.ENFORCE_MARKET_HOURS = 'false';
+process.env.MARKET_FEED = 'none';
+process.env.CORS_ORIGINS = '';
+process.env.PAYMOB_SECRET_KEY = 'sk_test_paymob';
+process.env.PAYMOB_PUBLIC_KEY = 'pk_test_paymob';
+process.env.PAYMOB_HMAC_SECRET = 'test-paymob-hmac-secret';
+process.env.PAYMOB_CARD_INTEGRATION_ID = '123456';
+process.env.PAYTABS_PROFILE_ID = '98765';
+process.env.PAYTABS_SERVER_KEY = 'test-paytabs-server-key';
+process.env.SWAGGER_ENABLED = 'true';

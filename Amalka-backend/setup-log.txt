@@ -1,0 +1,171 @@
+===== TOOLS =====
+C:\Program Files\nodejs\node.exe
+v24.11.1
+11.6.2
+C:\Program Files\Docker\Docker\resources\bin\docker
+C:\Program Files\Docker\Docker\resources\bin\docker.exe
+29.9.2
+HAVE_DOCKER=1
+===== ENV =====
+.env already exists - leaving it unchanged
+===== NPM INSTALL =====
+
+up to date in 829ms
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to .\node_modules\@prisma\client in 138ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+GENERATE_EXIT=0
+===== TYPECHECK =====
+
+> amalka-backend@1.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+TYPECHECK_EXIT=0
+===== UNIT TESTS =====
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mD:/Projects/alamalka/Amalka-backend[39m
+
+ [32m✓[39m tests/engine.unit.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m   Start at [22m 16:48:49
+[2m   Duration [22m 724ms[2m (transform 139ms, setup 14ms, collect 360ms, tests 9ms, environment 0ms, prepare 100ms)[22m
+
+UNIT_EXIT=0
+===== DOCKER COMPOSE =====
+ Container amalka-redis-1 Running 
+ Container amalka-postgres-1 Running 
+ Container amalka-postgres-1 Waiting 
+ Container amalka-redis-1 Waiting 
+ Container amalka-redis-1 Healthy 
+ Container amalka-postgres-1 Healthy 
+===== MIGRATE =====
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "amalka", schema "public" at "localhost:5433"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+No difference detected.
+
+DIFF_EXIT=0
+===== TESTS =====
+
+> amalka-backend@1.0.0 test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mD:/Projects/alamalka/Amalka-backend[39m
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "amalka_test", schema "public" at "localhost:5433"
+
+Applying migration `20261027000000_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261027000000_init/
+    └─ migration.sql
+
+ [32m✓[39m tests/payments.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 13231[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mcreates a Paymob intention and returns a checkout URL [33m 4933[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mmarks the transfer FAILED when the gateway errors [33m 342[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22menforces deposit limits [33m 358[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22msigned webhook credits the wallet exactly once (replays are no-ops) [33m 450[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mconcurrent duplicate webhooks still credit only once [33m 2610[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mrejects forged / tampered webhooks [33m 517[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mdoes not credit a correctly signed callback whose amount differs from the transfer [33m 755[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mdeclined payment marks the transfer FAILED [33m 366[2mms[22m[39m
+   [33m[2m✓[22m[39m card deposits[2m > [22mPayTabs: creates a payment page and accepts a signed IPN [33m 695[2mms[22m[39m
+   [33m[2m✓[22m[39m withdrawals[2m > [22mholds funds, then settles on approval [33m 950[2mms[22m[39m
+   [33m[2m✓[22m[39m withdrawals[2m > [22mrejected withdrawal releases the hold; overdraft is refused [33m 788[2mms[22m[39m
+   [33m[2m✓[22m[39m withdrawals[2m > [22mlists transfer history for the current user only [33m 464[2mms[22m[39m
+ [32m✓[39m tests/auth.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 10169[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mregisters a user with EGP + USD wallets and a unified id [33m 2789[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mrejects duplicate emails (case-insensitive) and weak passwords [33m 452[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mlogs in, rejects bad credentials and locks out after repeated failures [33m 1221[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mdoes not reveal whether an email exists [33m 464[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mrotates refresh tokens and revokes the family on reuse [33m 435[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22monly one of two concurrent refreshes with the same token succeeds [33m 2645[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mchange-password validates input, revokes old sessions and access tokens [33m 951[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mrejects missing, forged, alg=none and expired tokens [33m 329[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mlogout revokes the refresh token [33m 510[2mms[22m[39m
+   [33m[2m✓[22m[39m auth[2m > [22mnever returns the password hash and strips unknown fields [33m 371[2mms[22m[39m
+ [32m✓[39m tests/orders.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 17773[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22mlocks price × qty × (1+fee) for a BUY LIMIT order and rests it when not marketable [33m 2814[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22mrejects orders exceeding buying power without side effects [33m 409[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22mvalidates EGX price rules, custodian and order combinations [33m 814[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22muses the USD wallet for USD-denominated stocks [33m 462[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22mRACE: 20 concurrent orders can never spend more than the available buying power [33m 4623[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22mRACE: concurrent SELL orders can never oversell a holding [33m 435[2mms[22m[39m
+   [33m[2m✓[22m[39m order placement & buying power[2m > [22mIdempotency-Key makes retries safe [33m 405[2mms[22m[39m
+   [33m[2m✓[22m[39m edit & cancel[2m > [22mcancel releases exactly the locked buying power [33m 465[2mms[22m[39m
+   [33m[2m✓[22m[39m edit & cancel[2m > [22medit re-reserves the difference and refuses when funds are short [33m 575[2mms[22m[39m
+   [33m[2m✓[22m[39m edit & cancel[2m > [22medit of a SELL order adjusts reserved shares [33m 442[2mms[22m[39m
+   [33m[2m✓[22m[39m edit & cancel[2m > [22musers cannot see, edit or cancel someone else's order [33m 536[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mREGULAR limit buy walks the book, settles cash, fees and holdings [33m 476[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mFOK is killed when the full quantity is not available [33m 404[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mFOK fills completely when liquidity is there [33m 440[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mFAK fills what it can and cancels the rest [33m 558[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mAON rests until the whole quantity can execute at once [33m 429[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mMF needs its minimum on entry, then behaves like a regular order [33m 484[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mconditional order (minimum block) waits for a large enough block [33m 464[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mMARKET buy reserves a slippage buffer and returns what was not used [33m 799[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mMARKET order with no liquidity is cancelled, never left resting [33m 367[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mSELL execution credits proceeds minus fees and releases shares [33m 439[2mms[22m[39m
+   [33m[2m✓[22m[39m execution rules (EGX)[2m > [22mresting order executes on a later tick when the market reaches its price [33m 464[2mms[22m[39m
+   [33m[2m✓[22m[39m expiry[2m > [22mDAY orders expire after their session closes and release funds; GTC orders do not [33m 466[2mms[22m[39m
+ [32m✓[39m tests/market.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 10744[2mms[22m[39m
+   [33m[2m✓[22m[39m stocks[2m > [22mlists stocks with change % and filters by sector / sharia / search [33m 2607[2mms[22m[39m
+   [33m[2m✓[22m[39m stocks[2m > [22mreturns stock stats, price limits and the order book [33m 557[2mms[22m[39m
+   [33m[2m✓[22m[39m portfolio[2m > [22msummarises both wallets with valuation and P/L [33m 391[2mms[22m[39m
+   [33m[2m✓[22m[39m price alerts[2m > [22mcreates, lists, triggers exactly once and deletes alerts [33m 802[2mms[22m[39m
+   [33m[2m✓[22m[39m websocket gateway[2m > [22mstreams ticks for subscribed symbols only [33m 332[2mms[22m[39m
+   [33m[2m✓[22m[39m websocket gateway[2m > [22mdelivers private events only to the authenticated owner [33m 4445[2mms[22m[39m
+   [33m[2m✓[22m[39m websocket gateway[2m > [22mrejects bad tokens and unknown actions [33m 331[2mms[22m[39m
+   [33m[2m✓[22m[39m docs & hardening[2m > [22mserves the OpenAPI document with every endpoint [33m 303[2mms[22m[39m
+   [33m[2m✓[22m[39m docs & hardening[2m > [22msets security headers and hides the framework [33m 310[2mms[22m[39m
+   [33m[2m✓[22m[39m docs & hardening[2m > [22mhandles malformed JSON and unknown routes cleanly [33m 362[2mms[22m[39m
+ [32m✓[39m tests/engine.unit.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m68 passed[39m[22m[90m (68)[39m
+[2m   Start at [22m 16:49:02
+[2m   Duration [22m 63.13s[2m (transform 366ms, setup 18ms, collect 3.06s, tests 51.92s, environment 1ms, prepare 437ms)[22m
+
+TEST_EXIT=0
+===== SEED =====
+
+> amalka-backend@1.0.0 db:seed
+> tsx prisma/seed.ts
+
+✔ 20 stocks
+• demo@amalka.app already exists
+• admin@amalka.app already exists
+SEED_EXIT=0
+ALL_DONE

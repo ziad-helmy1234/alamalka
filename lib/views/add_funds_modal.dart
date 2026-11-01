@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
+import 'card_payment_screen.dart';
 
 class AddFundsModal extends StatefulWidget {
   final String initialCurrency;
@@ -13,7 +13,6 @@ class AddFundsModal extends StatefulWidget {
 }
 
 class _AddFundsModalState extends State<AddFundsModal> {
-  final StockService _stockService = StockService();
   late String _currency;
   late String _selectedMethod;
   final TextEditingController _amountController =
@@ -247,19 +246,16 @@ class _AddFundsModalState extends State<AddFundsModal> {
                           ),
                           onPressed: amount <= 0
                               ? null
-                              : () {
-                                  _stockService.addFunds(
-                                      _currency, amount, _selectedMethod);
+                              : () async {
                                   Navigator.pop(context);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        AppLanguage.isArabic
-                                            ? 'تم إيداع $amount $_currency بنجاح عبر $_selectedMethod!'
-                                            : 'Successfully deposited $amount $_currency via $_selectedMethod!',
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => CardPaymentScreen(
+                                        amount: amount,
+                                        currency: _currency,
+                                        method: _selectedMethod,
                                       ),
-                                      backgroundColor: AppColors.greenPositive,
                                     ),
                                   );
                                 },
