@@ -1096,6 +1096,11 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
   }
 
   Widget _buildActionBottomBar(BuildContext context, Stock stock) {
+    // Sell is only offered for stocks the client owns, wherever the page was opened from.
+    final summary = _stockService.getPortfolioSummary();
+    final ownsStock = [...summary.egpHoldings, ...summary.usdHoldings]
+        .any((h) => h.symbol == stock.symbol && h.quantity > 0);
+
     return Container(
       padding: const EdgeInsets.all(16),
       color: Theme.of(context).cardColor,
@@ -1119,6 +1124,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       fontWeight: FontWeight.bold)),
             ),
           ),
+          if (ownsStock) ...[
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
@@ -1138,6 +1144,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       fontWeight: FontWeight.bold)),
             ),
           ),
+          ],
         ],
       ),
     );

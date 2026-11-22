@@ -172,6 +172,160 @@ class _OrderModalState extends State<OrderModal> {
     );
   }
 
+  /// Review screen shown before an order is sent or changed.
+  /// Returns true only when the client taps the place/save button.
+  Future<bool?> _showOrderReview({
+    required bool isEditing,
+    required double price,
+    required int quantity,
+    required double orderValue,
+    required double estimatedFees,
+    required double totalWithFees,
+    int? minBlock,
+  }) {
+    final ar = AppLanguage.isArabic;
+    final isBuy = _side == OrderSide.buy;
+    final sideColor = isBuy ? AppColors.greenPositive : AppColors.redNegative;
+    final cur = widget.stock.currency;
+
+    String pricingModeText() {
+      switch (_orderType) {
+        case OrderType.limit:
+          return AppStrings.limitPrice;
+        case OrderType.market:
+          return AppStrings.marketPrice;
+        case OrderType.stopLoss:
+          return ar ? 'وقف الخسارة' : 'Stop Loss';
+      }
+    }
+
+    String ruleText() {
+      final name = _executionRule == ExecutionRule.regular
+          ? (ar ? 'عادي' : 'Regular')
+          : _executionRule.name.toUpperCase();
+      if (minBlock == null) return name;
+      return ar
+          ? '$name - حد أدنى للدفعة ${fmtNum(minBlock, 0)}'
+          : '$name - min block ${fmtNum(minBlock, 0)}';
+    }
+
+    String validityText() {
+      switch (_validity) {
+        case OrderValidity.day:
+          return AppStrings.dayOrder;
+        case OrderValidity.gtc:
+          return AppStrings.gtcOrder;
+        case OrderValidity.gtd:
+          final d = _selectedGtdDate;
+          final date = d == null ? '' : ' ${ltr('${d.day}/${d.month}/${d.year}')}';
+          return '${AppStrings.gtdOrder}$date';
+      }
+    }
+
+    Widget row(String label, String value, {bool bold = false, Color? color}) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: 14, color: Theme.of(context).hintColor)),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: bold ? 16 : 14,
+                  fontWeight: bold ? FontWeight.bold : FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final title = isEditing
+        ? (ar ? 'مراجعة تعديلات الأمر' : 'Review Order Changes')
+        : (isBuy
+            ? (ar ? 'مراجعة أمر الشراء' : 'Review Buy Order')
+            : (ar ? 'مراجعة أمر البيع' : 'Review Sell Order'));
+    final submitText = isEditing
+        ? AppStrings.saveChanges
+        : (isBuy
+            ? (ar ? 'إرسال أمر الشراء' : 'Place Buy Order')
+            : (ar ? 'إرسال أمر البيع' : 'Place Sell Order'));
+
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              row(ar ? 'السهم' : 'Stock',
+                  '${widget.stock.symbol} - ${ar ? widget.stock.nameAr : widget.stock.name}'),
+              row(ar ? 'نوع العملية' : 'Side',
+                  isBuy ? AppStrings.buy : AppStrings.sell,
+                  color: sideColor),
+              row(AppStrings.pricingMode, pricingModeText()),
+              row(ar ? 'السعر' : 'Price',
+                  _orderType == OrderType.market
+                      ? '~ ${fmtPrice(price)} $cur'
+                      : '${fmtPrice(price)} $cur'),
+              row(ar ? 'الكمية' : 'Quantity', fmtNum(quantity, 0)),
+              row(AppStrings.executionRule, ruleText()),
+              row(AppStrings.orderDuration, validityText()),
+              row(AppStrings.custodianBank, _selectedCustodianBank),
+              const Divider(height: 20),
+              row(ar ? 'قيمة الأمر' : 'Order value', '${fmtNum(orderValue)} $cur'),
+              row(ar ? 'الرسوم التقديرية' : 'Estimated fees', '${fmtNum(estimatedFees)} $cur'),
+              row(
+                isBuy
+                    ? (ar ? 'الإجمالي شامل الرسوم' : 'Total incl. fees')
+                    : (ar ? 'صافي المتحصلات' : 'Net proceeds'),
+                '${fmtNum(totalWithFees)} $cur',
+                bold: true,
+              ),
+              if (_orderType == OrderType.market)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    ar
+                        ? 'أوامر السوق تُنفذ بأفضل سعر متاح، وقد يختلف سعر التنفيذ النهائي.'
+                        : 'Market orders execute at the best available price; the final price may differ.',
+                    style: TextStyle(fontSize: 12, color: Theme.of(ctx).hintColor),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(ar ? 'رجوع للتعديل' : 'Go Back'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: sideColor,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(submitText, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Locale>(
@@ -205,6 +359,25 @@ class _OrderModalState extends State<OrderModal> {
 
         final hasEnoughPower =
             _side == OrderSide.sell || effectiveRequiredPower <= buyingPower;
+
+        final allHoldings = [...portfolio.egpHoldings, ...portfolio.usdHoldings];
+        final sharesOwned = allHoldings
+            .where((h) => h.symbol == widget.stock.symbol)
+            .fold<int>(0, (sum, h) => sum + h.quantity);
+        final sharesInOpenSells = _stockService.orders
+            .where((o) =>
+                o.symbol == widget.stock.symbol &&
+                o.side == OrderSide.sell &&
+                o.status == OrderStatus.pending &&
+                o.id != widget.existingOrder?.id)
+            .fold<int>(0, (sum, o) => sum + o.quantity);
+        final sharesAvailable =
+            (sharesOwned - sharesInOpenSells).clamp(0, sharesOwned).toInt();
+        final hasEnoughShares =
+            _side == OrderSide.buy || quantity <= sharesAvailable;
+
+        final canSubmit = isValidInput &&
+            (_side == OrderSide.buy ? hasEnoughPower : hasEnoughShares);
 
         final minBlockVal = _isConditional
             ? (int.tryParse(_minBlockController.text) ?? 1000)
@@ -255,61 +428,6 @@ class _OrderModalState extends State<OrderModal> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Side Selector (Buy / Sell Toggle)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () => setState(() => _side = OrderSide.buy),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: _side == OrderSide.buy
-                                      ? AppColors.greenPositive
-                                      : Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Theme.of(context).dividerColor),
-                                ),
-                                child: Center(
-                                  child: Text(AppStrings.buy,
-                                      style: TextStyle(
-                                          // white on the coloured selected side, theme text colour otherwise
-                                          color: _side == OrderSide.buy
-                                              ? Colors.white
-                                              : Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () => setState(() => _side = OrderSide.sell),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: _side == OrderSide.sell
-                                      ? AppColors.redNegative
-                                      : Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Theme.of(context).dividerColor),
-                                ),
-                                child: Center(
-                                  child: Text(AppStrings.sell,
-                                      style: TextStyle(
-                                          // white on the coloured selected side, theme text colour otherwise
-                                          color: _side == OrderSide.sell
-                                              ? Colors.white
-                                              : Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
 
                       // 1. Custodian Bank Selector (أمين الحفظ)
                       Text(AppStrings.custodianBank,
@@ -630,17 +748,55 @@ class _OrderModalState extends State<OrderModal> {
                         ),
                         child: Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(AppStrings.buyingPower),
-                                Text(
-                                  '${fmtNum(buyingPower)} ${widget.stock.currency}',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
+                            if (_side == OrderSide.buy)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(AppStrings.buyingPower),
+                                  Text(
+                                    '${fmtNum(buyingPower)} ${widget.stock.currency}',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              )
+                            else ...[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(AppLanguage.isArabic
+                                      ? 'الأسهم المتاحة للبيع'
+                                      : 'Shares available to sell'),
+                                  Text(
+                                    fmtNum(sharesAvailable, 0),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              if (sharesInOpenSells > 0) ...[
+                                const SizedBox(height: 6),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      AppLanguage.isArabic
+                                          ? 'محجوزة في أوامر بيع مفتوحة'
+                                          : 'Reserved in open sell orders',
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).hintColor),
+                                    ),
+                                    Text(
+                                      fmtNum(sharesInOpenSells, 0),
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).hintColor),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
+                            ],
                             const SizedBox(height: 6),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -663,9 +819,11 @@ class _OrderModalState extends State<OrderModal> {
                                 Text(
                                   '${fmtNum(totalWithFees)} ${widget.stock.currency}',
                                   style: TextStyle(
-                                    color: hasEnoughPower
-                                        ? AppColors.greenPositive
-                                        : AppColors.redNegative,
+                                    color: !isValidInput
+                                        ? null
+                                        : (canSubmit
+                                            ? AppColors.greenPositive
+                                            : AppColors.redNegative),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -675,7 +833,7 @@ class _OrderModalState extends State<OrderModal> {
                           ],
                         ),
                       ),
-                      if (!isValidInput || (!hasEnoughPower && _side == OrderSide.buy))
+                      if (!canSubmit)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
@@ -683,9 +841,13 @@ class _OrderModalState extends State<OrderModal> {
                                 ? (AppLanguage.isArabic
                                     ? 'أدخل الكمية والسعر لمتابعة الأمر.'
                                     : 'Enter quantity and price to continue.')
-                                : (AppLanguage.isArabic
-                                    ? 'القوة الشرائية غير كافية لهذا الأمر شاملاً الرسوم.'
-                                    : 'Not enough buying power for this order including fees.'),
+                                : _side == OrderSide.sell
+                                    ? (AppLanguage.isArabic
+                                        ? 'لديك ${fmtNum(sharesAvailable, 0)} سهم فقط متاحة للبيع.'
+                                        : 'You only have ${fmtNum(sharesAvailable, 0)} shares available to sell.')
+                                    : (AppLanguage.isArabic
+                                        ? 'القوة الشرائية غير كافية لهذا الأمر شاملاً الرسوم.'
+                                        : 'Not enough buying power for this order including fees.'),
                             style: TextStyle(
                               fontSize: 13,
                               color: !isValidInput
@@ -710,9 +872,20 @@ class _OrderModalState extends State<OrderModal> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: !isValidInput || (!hasEnoughPower && _side == OrderSide.buy)
+                          onPressed: !canSubmit
                               ? null
-                              : () {
+                              : () async {
+                                  final confirmed = await _showOrderReview(
+                                    isEditing: isEditing,
+                                    price: price,
+                                    quantity: quantity,
+                                    orderValue: totalCost,
+                                    estimatedFees: estimatedFees,
+                                    totalWithFees: totalWithFees,
+                                    minBlock: minBlockVal,
+                                  );
+                                  if (confirmed != true || !context.mounted) return;
+
                                   if (isEditing) {
                                     final updatedOrder = Order(
                                       id: widget.existingOrder!.id,

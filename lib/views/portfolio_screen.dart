@@ -5,6 +5,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'add_funds_modal.dart';
+import 'stock_detail_screen.dart';
 import '../utils/formatters.dart';
 
 class PortfolioScreen extends StatefulWidget {
@@ -267,6 +268,21 @@ class _PortfolioScreenState extends State<PortfolioScreen>
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    // Open the stock page from "my stocks"
+                    onTap: () {
+                      final matches = _stockService.allStocks
+                          .where((st) => st.symbol == holding.symbol);
+                      if (matches.isEmpty) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              StockDetailScreen(stock: matches.first),
+                        ),
+                      );
+                    },
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -331,6 +347,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                         ),
                       ],
                     ),
+                  ),
                   ),
                 );
               },
