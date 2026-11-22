@@ -6,6 +6,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'order_modal.dart';
+import '../utils/formatters.dart';
 
 class StockDetailScreen extends StatefulWidget {
   final Stock stock;
@@ -158,8 +159,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                       SnackBar(
                         content: Text(
                           AppLanguage.isArabic
-                              ? 'تم ضبط تنبيه السعر لـ ${stock.symbol} عند ${targetPrice.toStringAsFixed(2)} ${stock.currency}!'
-                              : 'Price alert set for ${stock.symbol} at ${targetPrice.toStringAsFixed(2)} ${stock.currency}!',
+                              ? 'تم ضبط تنبيه السعر لـ ${stock.symbol} عند ${fmtPrice(targetPrice)} ${stock.currency}!'
+                              : 'Price alert set for ${stock.symbol} at ${fmtPrice(targetPrice)} ${stock.currency}!',
                         ),
                         backgroundColor: AppColors.greenPositive,
                       ),
@@ -285,7 +286,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${currentStock.currentPrice.toStringAsFixed(3)} ${currentStock.currency}',
+                              '${fmtPrice(currentStock.currentPrice)} ${currentStock.currency}',
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -299,7 +300,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '$sign${currentStock.change.toStringAsFixed(3)} ($sign${currentStock.percentChange.toStringAsFixed(2)}%)',
+                              ltr('${fmtSigned(currentStock.change)} (${fmtPct(currentStock.percentChange, 2)})'),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -508,11 +509,11 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildStatCol(AppStrings.openPrice,
-                          '${stock.openPrice.toStringAsFixed(3)} ${stock.currency}'),
+                          '${fmtPrice(stock.openPrice)} ${stock.currency}'),
                       _buildStatCol(AppStrings.previousClose,
-                          '${stock.previousClose.toStringAsFixed(3)} ${stock.currency}'),
+                          '${fmtPrice(stock.previousClose)} ${stock.currency}'),
                       _buildStatCol(AppStrings.peRatio,
-                          stock.peRatio.toStringAsFixed(2)),
+                          fmtNum(stock.peRatio)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -520,9 +521,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildStatCol(AppStrings.dayHigh,
-                          '${stock.dayHigh.toStringAsFixed(3)} ${stock.currency}'),
+                          '${fmtPrice(stock.dayHigh)} ${stock.currency}'),
                       _buildStatCol(AppStrings.dayLow,
-                          '${stock.dayLow.toStringAsFixed(3)} ${stock.currency}'),
+                          '${fmtPrice(stock.dayLow)} ${stock.currency}'),
                       _buildStatCol(AppStrings.volume,
                           _formatNum(stock.volume.toInt())),
                     ],
@@ -617,24 +618,24 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           child: Column(
             children: [
               _buildTableRow(AppLanguage.isArabic ? 'حجم أفضل طلب' : 'Best Bid Volume',
-                  '${stock.bidsByPrice.first.quantity} × ${stock.bidsByPrice.first.price.toStringAsFixed(3)}'),
+                  '${stock.bidsByPrice.first.quantity} × ${fmtPrice(stock.bidsByPrice.first.price)}'),
               _buildTableRow(AppLanguage.isArabic ? 'حجم أفضل عرض' : 'Best Ask Volume',
-                  '${stock.asksByPrice.first.quantity} × ${stock.asksByPrice.first.price.toStringAsFixed(3)}'),
+                  '${stock.asksByPrice.first.quantity} × ${fmtPrice(stock.asksByPrice.first.price)}'),
               _buildTableRow(AppLanguage.isArabic ? 'إجمالي الطلبات' : 'Total Bids Volume', _formatNum(stock.totalBidsVolume)),
               _buildTableRow(AppLanguage.isArabic ? 'إجمالي العروض' : 'Total Asks Volume', _formatNum(stock.totalAsksVolume)),
               _buildTableRow(AppStrings.volume, '${_formatNum(stock.volume.toInt())}'),
               _buildTableRow(AppStrings.numberOfTrades, _formatNum(stock.numberOfTrades)),
               _buildTableRow(AppStrings.totalTradeValue, '${_formatNum(stock.totalTradeValue.toInt())} ${stock.currency}'),
               _buildTableRow(AppLanguage.isArabic ? 'سعر الفتح - الإغلاق' : 'Open - Close Price',
-                  '${stock.openPrice.toStringAsFixed(3)} - ${stock.previousClose.toStringAsFixed(3)}'),
+                  '${fmtPrice(stock.openPrice)} - ${fmtPrice(stock.previousClose)}'),
               _buildTableRow(AppLanguage.isArabic ? 'أقل - أعلى سعر' : 'Low - High Price',
-                  '${stock.dayLow.toStringAsFixed(3)} - ${stock.dayHigh.toStringAsFixed(3)}'),
+                  '${fmtPrice(stock.dayLow)} - ${fmtPrice(stock.dayHigh)}'),
               _buildTableRow(AppLanguage.isArabic ? 'حدود الجلسة (الحد الأدنى - الأقصى)' : 'Session Limits',
-                  '${stock.circuitBreakerMin.toStringAsFixed(3)} - ${stock.circuitBreakerMax.toStringAsFixed(3)}'),
+                  '${fmtPrice(stock.circuitBreakerMin)} - ${fmtPrice(stock.circuitBreakerMax)}'),
               _buildTableRow(AppLanguage.isArabic ? 'نطاق 52 أسبوعاً' : '52-Week Range',
-                  '${stock.week52Min.toStringAsFixed(3)} - ${stock.week52Max.toStringAsFixed(3)}'),
+                  '${fmtPrice(stock.week52Min)} - ${fmtPrice(stock.week52Max)}'),
               _buildTableRow(AppStrings.marketCap, '${_formatNum(stock.marketCap.toInt())} ${stock.currency}'),
-              _buildTableRow(AppStrings.peRatio, stock.peRatio.toStringAsFixed(2)),
+              _buildTableRow(AppStrings.peRatio, fmtNum(stock.peRatio)),
             ],
           ),
         ),
@@ -764,14 +765,14 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Text(
-                                stock.bidsByPrice[i].price.toStringAsFixed(3),
+                                fmtPrice(stock.bidsByPrice[i].price),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 12))),
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Text(
-                                stock.asksByPrice[i].price.toStringAsFixed(3),
+                                fmtPrice(stock.asksByPrice[i].price),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 12))),
@@ -866,14 +867,14 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Text(
-                                stock.bidsByOrder[i].price.toStringAsFixed(3),
+                                fmtPrice(stock.bidsByOrder[i].price),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 12))),
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Text(
-                                stock.asksByOrder[i].price.toStringAsFixed(3),
+                                fmtPrice(stock.asksByOrder[i].price),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 12))),
@@ -963,7 +964,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                                 style: const TextStyle(fontSize: 12))),
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Text(ex.price.toStringAsFixed(3),
+                            child: Text(fmtPrice(ex.price),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 12))),
@@ -1087,9 +1088,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
 
   String _formatNum(int num) {
     if (num >= 1000000) {
-      return '${(num / 1000000).toStringAsFixed(2)} M';
+      return ltr('${(num / 1000000).toStringAsFixed(2)} M');
     } else if (num >= 1000) {
-      return '${(num / 1000).toStringAsFixed(1)} K';
+      return ltr('${(num / 1000).toStringAsFixed(1)} K');
     }
     return num.toString();
   }

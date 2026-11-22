@@ -4,6 +4,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'stock_detail_screen.dart';
+import '../utils/formatters.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -238,7 +239,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
           const Spacer(),
           Text(
-            '${stock.currentPrice.toStringAsFixed(2)} ${stock.currency}',
+            '${fmtPrice(stock.currentPrice)} ${stock.currency}',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -264,7 +265,7 @@ class _SearchScreenState extends State<SearchScreen> {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '$sign${stock.percentChange.toStringAsFixed(2)}%',
+              fmtPct(stock.percentChange, 2),
               style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11),
             ),
           ),

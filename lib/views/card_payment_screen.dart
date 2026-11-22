@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
+import '../utils/formatters.dart';
 
 class CardPaymentScreen extends StatefulWidget {
   final double amount;
@@ -129,8 +130,8 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                           Expanded(
                             child: Text(
                               AppLanguage.isArabic
-                                  ? 'تم إرسال كود التأكيد OTP عبر الرسائل القصيرة إلى هاتفك المسجل ببنك الإصدار لخصم ${widget.amount.toStringAsFixed(2)} ${widget.currency}.'
-                                  : 'An OTP security code was sent to your registered bank mobile to authorize ${widget.amount.toStringAsFixed(2)} ${widget.currency}.',
+                                  ? 'تم إرسال كود التأكيد OTP عبر الرسائل القصيرة إلى هاتفك المسجل ببنك الإصدار لخصم ${fmtNum(widget.amount)} ${widget.currency}.'
+                                  : 'An OTP security code was sent to your registered bank mobile to authorize ${fmtNum(widget.amount)} ${widget.currency}.',
                               style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.accentBlue,
@@ -181,8 +182,8 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                             SnackBar(
                               content: Text(
                                 AppLanguage.isArabic
-                                    ? 'تم خصم وتأكيد إيداع ${widget.amount.toStringAsFixed(2)} ${widget.currency} بنجاح بكارتك المصرفي!'
-                                    : 'Successfully deposited ${widget.amount.toStringAsFixed(2)} ${widget.currency} via Card!',
+                                    ? 'تم خصم وتأكيد إيداع ${fmtNum(widget.amount)} ${widget.currency} بنجاح بكارتك المصرفي!'
+                                    : 'Successfully deposited ${fmtNum(widget.amount)} ${widget.currency} via Card!',
                               ),
                               backgroundColor: AppColors.greenPositive,
                             ),
@@ -190,8 +191,8 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                         },
                         child: Text(
                           AppLanguage.isArabic
-                              ? 'تأكيد ودفع ${widget.amount.toStringAsFixed(2)} ${widget.currency}'
-                              : 'Confirm & Authorize ${widget.amount.toStringAsFixed(2)} ${widget.currency}',
+                              ? 'تأكيد ودفع ${fmtNum(widget.amount)} ${widget.currency}'
+                              : 'Confirm & Authorize ${fmtNum(widget.amount)} ${widget.currency}',
                           style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -258,7 +259,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${widget.amount.toStringAsFixed(2)} ${widget.currency}',
+                                '${fmtNum(widget.amount)} ${widget.currency}',
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -409,8 +410,8 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                             )
                           : Text(
                               AppLanguage.isArabic
-                                  ? 'دفع ${widget.amount.toStringAsFixed(2)} ${widget.currency} وإكمال الإيداع'
-                                  : 'Pay ${widget.amount.toStringAsFixed(2)} ${widget.currency} & Complete Deposit',
+                                  ? 'دفع ${fmtNum(widget.amount)} ${widget.currency} وإكمال الإيداع'
+                                  : 'Pay ${fmtNum(widget.amount)} ${widget.currency} & Complete Deposit',
                               style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

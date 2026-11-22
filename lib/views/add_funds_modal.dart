@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'card_payment_screen.dart';
+import '../utils/formatters.dart';
 
 class AddFundsModal extends StatefulWidget {
   final String initialCurrency;
@@ -238,6 +239,7 @@ class _AddFundsModalState extends State<AddFundsModal> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white, // label colour; Flutter greys it out readably when disabled
                             backgroundColor: AppColors.greenPositive,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -260,11 +262,10 @@ class _AddFundsModalState extends State<AddFundsModal> {
                                   );
                                 },
                           child: Text(
-                            '${AppStrings.confirmDeposit} (${amount.toStringAsFixed(2)} $_currency)',
+                            '${AppStrings.confirmDeposit} (${fmtNum(amount)} $_currency)',
                             style: const TextStyle(
                                 fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+                                fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),

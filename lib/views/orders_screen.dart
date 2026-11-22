@@ -4,6 +4,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'order_modal.dart';
+import '../utils/formatters.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -161,13 +162,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
             _buildDetailRow(AppStrings.executionRule,
                 AppLanguage.isArabic ? order.executionRuleAr : order.executionRuleShort),
             _buildDetailRow(AppStrings.targetPriceLabel,
-                '${order.targetPrice.toStringAsFixed(2)} ${order.currency}'),
+                '${fmtPrice(order.targetPrice)} ${order.currency}'),
             _buildDetailRow(AppStrings.quantityLabel, '${order.quantity}'),
             if (order.isConditional)
               _buildDetailRow(AppStrings.fillBlockSize,
                   '${order.minimumBlockQuantity} ${AppLanguage.isArabic ? "سهم" : "shares"}'),
             _buildDetailRow(AppStrings.totalOrderValue,
-                '${order.totalValue.toStringAsFixed(2)} ${order.currency}'),
+                '${fmtNum(order.totalValue)} ${order.currency}'),
             _buildDetailRow(AppStrings.custodianBank, order.custodianBank),
             _buildDetailRow(AppStrings.orderDuration, validityText),
             _buildDetailRow(
@@ -413,7 +414,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                     style: const TextStyle(fontSize: 13),
                                   ),
                                   Text(
-                                    '${AppLanguage.isArabic ? "السعر" : "Price"}: ${order.targetPrice.toStringAsFixed(2)} ${order.currency}',
+                                    '${AppLanguage.isArabic ? "السعر" : "Price"}: ${fmtPrice(order.targetPrice)} ${order.currency}',
                                     style: const TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold),
@@ -421,8 +422,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // Wrap (not Row) so long English labels move to a second line instead of overflowing
+                              Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                spacing: 12,
+                                runSpacing: 4,
                                 children: [
                                   Text(
                                     '${AppStrings.pricingMode}: ${order.type == OrderType.limit ? AppStrings.limitPrice : AppStrings.marketPrice}',

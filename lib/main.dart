@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_language.dart';
 import 'views/main_navigation_screen.dart';
@@ -18,7 +19,6 @@ class StockTradingApp extends StatelessWidget {
         return ValueListenableBuilder<Locale>(
           valueListenable: AppLanguage.localeNotifier,
           builder: (context, currentLocale, _) {
-            final isRtl = currentLocale.languageCode == 'ar';
             return MaterialApp(
               title: 'منصة التداول المتقدمة - Stock Trading App',
               debugShowCheckedModeBanner: false,
@@ -26,10 +26,14 @@ class StockTradingApp extends StatelessWidget {
               darkTheme: AppTheme.darkTheme,
               themeMode: currentMode,
               locale: currentLocale,
-              home: Directionality(
-                textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-                child: const MainNavigationScreen(),
-              ),
+              // Applies RTL/LTR to every screen, sheet and dialog, not just the home screen.
+              supportedLocales: const [Locale('ar'), Locale('en')],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: const MainNavigationScreen(),
             );
           },
         );

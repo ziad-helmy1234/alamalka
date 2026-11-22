@@ -4,6 +4,7 @@ import '../models/order.dart';
 import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
+import '../utils/formatters.dart';
 
 class OrderModal extends StatefulWidget {
   final Stock stock;
@@ -25,7 +26,10 @@ class _OrderModalState extends State<OrderModal> {
   final StockService _stockService = StockService();
   late OrderSide _side;
   OrderType _orderType = OrderType.limit;
-  OrderValidity _validity = OrderValidity.gtc;
+  OrderValidity _validity = OrderValidity.day; // safest default: expires at today's close
+
+  // Estimated commission + exchange fees; keep in line with the backend's TRADING_FEE_RATE.
+  static const double _feeRate = 0.002;
   ExecutionRule _executionRule = ExecutionRule.regular;
   DateTime? _selectedGtdDate;
   bool _isConditional = false;
@@ -76,7 +80,7 @@ class _OrderModalState extends State<OrderModal> {
     } else {
       _side = widget.initialSide;
       _selectedCustodianBank = banks.first;
-      _quantityController = TextEditingController(text: '2000');
+      _quantityController = TextEditingController(); // client enters quantity; no pre-filled amount
       _priceController = TextEditingController(
         text: widget.stock.currentPrice.toStringAsFixed(2),
       );
@@ -189,10 +193,15 @@ class _OrderModalState extends State<OrderModal> {
             ? widget.stock.currentPrice
             : (double.tryParse(_priceController.text) ?? 0.0);
         final totalCost = quantity * price;
+        final estimatedFees = totalCost * _feeRate;
+        final totalWithFees = _side == OrderSide.buy
+            ? totalCost + estimatedFees
+            : totalCost - estimatedFees;
+        final isValidInput = quantity > 0 && price > 0;
 
         final double effectiveRequiredPower = isEditing
-            ? totalCost - widget.existingOrder!.totalValue
-            : totalCost;
+            ? (totalCost - widget.existingOrder!.totalValue) * (1 + _feeRate)
+            : totalCost * (1 + _feeRate);
 
         final hasEnoughPower =
             _side == OrderSide.sell || effectiveRequiredPower <= buyingPower;
@@ -263,8 +272,11 @@ class _OrderModalState extends State<OrderModal> {
                                 ),
                                 child: Center(
                                   child: Text(AppStrings.buy,
-                                      style: const TextStyle(
-                                          color: Colors.white,
+                                      style: TextStyle(
+                                          // white on the coloured selected side, theme text colour otherwise
+                                          color: _side == OrderSide.buy
+                                              ? Colors.white
+                                              : Theme.of(context).colorScheme.onSurface,
                                           fontWeight: FontWeight.bold)),
                                 ),
                               ),
@@ -285,8 +297,11 @@ class _OrderModalState extends State<OrderModal> {
                                 ),
                                 child: Center(
                                   child: Text(AppStrings.sell,
-                                      style: const TextStyle(
-                                          color: Colors.white,
+                                      style: TextStyle(
+                                          // white on the coloured selected side, theme text colour otherwise
+                                          color: _side == OrderSide.sell
+                                              ? Colors.white
+                                              : Theme.of(context).colorScheme.onSurface,
                                           fontWeight: FontWeight.bold)),
                                 ),
                               ),
@@ -620,7 +635,7 @@ class _OrderModalState extends State<OrderModal> {
                               children: [
                                 Text(AppStrings.buyingPower),
                                 Text(
-                                  '${buyingPower.toStringAsFixed(2)} ${widget.stock.currency}',
+                                  '${fmtNum(buyingPower)} ${widget.stock.currency}',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -630,9 +645,23 @@ class _OrderModalState extends State<OrderModal> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(AppStrings.totalOrderValue),
+                                Text(AppLanguage.isArabic
+                                    ? 'الرسوم التقديرية (${fmtNum(_feeRate * 100, 1)}%)'
+                                    : 'Estimated fees (${fmtNum(_feeRate * 100, 1)}%)'),
                                 Text(
-                                  '${totalCost.toStringAsFixed(2)} ${widget.stock.currency}',
+                                  '${fmtNum(estimatedFees)} ${widget.stock.currency}',
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(_side == OrderSide.buy
+                                    ? (AppLanguage.isArabic ? 'الإجمالي شامل الرسوم' : 'Total incl. fees')
+                                    : (AppLanguage.isArabic ? 'صافي المتحصلات' : 'Net proceeds')),
+                                Text(
+                                  '${fmtNum(totalWithFees)} ${widget.stock.currency}',
                                   style: TextStyle(
                                     color: hasEnoughPower
                                         ? AppColors.greenPositive
@@ -646,6 +675,25 @@ class _OrderModalState extends State<OrderModal> {
                           ],
                         ),
                       ),
+                      if (!isValidInput || (!hasEnoughPower && _side == OrderSide.buy))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            !isValidInput
+                                ? (AppLanguage.isArabic
+                                    ? 'أدخل الكمية والسعر لمتابعة الأمر.'
+                                    : 'Enter quantity and price to continue.')
+                                : (AppLanguage.isArabic
+                                    ? 'القوة الشرائية غير كافية لهذا الأمر شاملاً الرسوم.'
+                                    : 'Not enough buying power for this order including fees.'),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: !isValidInput
+                                  ? Theme.of(context).hintColor
+                                  : AppColors.redNegative,
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 20),
 
                       // Submit Button
@@ -653,6 +701,7 @@ class _OrderModalState extends State<OrderModal> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white, // label colour; Flutter greys it out readably when disabled
                             backgroundColor: _side == OrderSide.buy
                                 ? AppColors.greenPositive
                                 : AppColors.redNegative,
@@ -661,7 +710,7 @@ class _OrderModalState extends State<OrderModal> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: !hasEnoughPower && _side == OrderSide.buy
+                          onPressed: !isValidInput || (!hasEnoughPower && _side == OrderSide.buy)
                               ? null
                               : () {
                                   if (isEditing) {
@@ -753,8 +802,7 @@ class _OrderModalState extends State<OrderModal> {
                                     : 'Confirm ${_side == OrderSide.buy ? "Buy" : "Sell"} Order'),
                             style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

@@ -5,6 +5,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'add_funds_modal.dart';
+import '../utils/formatters.dart';
 
 class PortfolioScreen extends StatefulWidget {
   const PortfolioScreen({super.key});
@@ -143,7 +144,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      '${totalValue.toStringAsFixed(2)} $currency',
+                      '${fmtNum(totalValue)} $currency',
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -158,12 +159,12 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                     children: [
                       Expanded(
                         child: _buildBalanceItem(AppStrings.buyingPower,
-                            '${buyingPower.toStringAsFixed(2)} $currency'),
+                            '${fmtNum(buyingPower)} $currency'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildBalanceItem(AppStrings.cashBalance,
-                            '${cashBalance.toStringAsFixed(2)} $currency'),
+                            '${fmtNum(cashBalance)} $currency'),
                       ),
                     ],
                   ),
@@ -232,7 +233,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
               ),
               const SizedBox(width: 8),
               Text(
-                '${AppLanguage.isArabic ? "الإجمالي" : "Total"}: ${holdingsValue.toStringAsFixed(2)} $currency',
+                '${AppLanguage.isArabic ? "الإجمالي" : "Total"}: ${fmtNum(holdingsValue)} $currency',
                 style: const TextStyle(fontSize: 12),
               ),
             ],
@@ -286,7 +287,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '${holding.currentValue.toStringAsFixed(2)} $currency',
+                              '${fmtNum(holding.currentValue)} $currency',
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -307,7 +308,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '$sign${holding.totalGainLoss.toStringAsFixed(2)} ($sign${holding.percentageGainLoss.toStringAsFixed(2)}%)',
+                              ltr('${fmtSigned(holding.totalGainLoss)} (${fmtPct(holding.percentageGainLoss, 2)})'),
                               style: TextStyle(
                                 color: color,
                                 fontWeight: FontWeight.bold,
@@ -324,7 +325,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                                 '${AppLanguage.isArabic ? "الكمية" : "Qty"}: ${holding.quantity}',
                                 style: const TextStyle(fontSize: 12)),
                             Text(
-                                '${AppLanguage.isArabic ? "متوسط الشراء" : "Avg Buy"}: ${holding.averageBuyPrice.toStringAsFixed(2)} $currency',
+                                '${AppLanguage.isArabic ? "متوسط الشراء" : "Avg Buy"}: ${fmtPrice(holding.averageBuyPrice)} $currency',
                                 style: const TextStyle(fontSize: 12)),
                           ],
                         ),
@@ -392,7 +393,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '$sign${totalGainLoss.toStringAsFixed(2)} $currency ($sign${percentageGainLoss.toStringAsFixed(2)}%)',
+                    ltr('${fmtSigned(totalGainLoss)} $currency (${fmtPct(percentageGainLoss, 2)})'),
                     style: TextStyle(
                       color: color,
                       fontWeight: FontWeight.bold,

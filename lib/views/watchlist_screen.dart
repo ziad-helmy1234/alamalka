@@ -4,6 +4,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'stock_detail_screen.dart';
+import '../utils/formatters.dart';
 
 class WatchlistScreen extends StatefulWidget {
   const WatchlistScreen({super.key});
@@ -95,7 +96,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
                               size: 14, color: AppColors.goldSharia),
                         const Spacer(),
                         Text(
-                          '${stock.currentPrice.toStringAsFixed(2)} ${stock.currency}',
+                          '${fmtPrice(stock.currentPrice)} ${stock.currency}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -110,7 +111,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
                           ),
                         ),
                         Text(
-                          '$sign${stock.percentChange.toStringAsFixed(2)}%',
+                          fmtPct(stock.percentChange, 2),
                           style: TextStyle(
                               color: color,
                               fontWeight: FontWeight.bold,

@@ -3,6 +3,7 @@ import '../services/stock_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_language.dart';
 import 'add_funds_modal.dart';
+import '../utils/formatters.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -326,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           return ListTile(
             leading: const Icon(Icons.arrow_downward, color: AppColors.greenPositive),
-            title: Text('$type - ${trf.amount.toStringAsFixed(2)} ${trf.currency}',
+            title: Text('$type - ${fmtNum(trf.amount)} ${trf.currency}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             subtitle: Text('${AppLanguage.isArabic ? "طريقة الإيداع" : "Method"}: $method • ${AppLanguage.isArabic ? "الحالة" : "Status"}: $status',
                 style: const TextStyle(fontSize: 12)),

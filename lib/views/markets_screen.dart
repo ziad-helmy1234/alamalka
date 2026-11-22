@@ -6,6 +6,7 @@ import '../theme/app_language.dart';
 import 'stock_detail_screen.dart';
 import 'news_events_screen.dart';
 import 'search_screen.dart';
+import '../utils/formatters.dart';
 
 class MarketsScreen extends StatefulWidget {
   const MarketsScreen({super.key});
@@ -149,7 +150,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
           children: [
             Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             const SizedBox(width: 6),
-            Text(change, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11)),
+            Text(ltr(change), style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11)),
           ],
         ),
       ],
@@ -386,7 +387,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '$sign${stock.percentChange.toStringAsFixed(1)}%',
+                    fmtPct(stock.percentChange, 1),
                     style: TextStyle(
                       color: color,
                       fontWeight: FontWeight.bold,
@@ -405,7 +406,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
               ),
             ),
             Text(
-              '${stock.currentPrice.toStringAsFixed(2)} ${stock.currency}',
+              '${fmtPrice(stock.currentPrice)} ${stock.currency}',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
@@ -439,7 +440,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
             const Icon(Icons.star, size: 14, color: AppColors.goldSharia),
           const Spacer(),
           Text(
-            '${stock.currentPrice.toStringAsFixed(2)} ${stock.currency}',
+            '${fmtPrice(stock.currentPrice)} ${stock.currency}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
@@ -454,7 +455,7 @@ class _MarketsScreenState extends State<MarketsScreen> {
             ),
           ),
           Text(
-            '$sign${stock.percentChange.toStringAsFixed(2)}%',
+            fmtPct(stock.percentChange, 2),
             style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
           ),
         ],
